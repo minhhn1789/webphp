@@ -15,7 +15,7 @@
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
 	</head>
 	<body>
-		<div class="bg"></div>
+		<div class="bg_login"></div>
 		<div class="login">
 			<h1>Login</h1>
 			<form action="authenticate.php" method="post" id="form_login">
