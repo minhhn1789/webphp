@@ -37,9 +37,9 @@ if ($stmt = $con->prepare('SELECT id, password FROM account WHERE nick_name = ?'
             // Tạo session để biết người dùng đã đăng nhập, về cơ bản chúng hoạt động như cookie nhưng ghi nhớ dữ liệu trên máy chủ.
             session_regenerate_id();
             $_SESSION['loggedin'] = TRUE;
-            $_SESSION['name'] = $_POST['username'];         
+            $_SESSION['name'] = $_POST['username'];
             $_SESSION['id'] = $id;
-            header('Location: home.php');
+            header('Location: /blog');
         } else {
             // Incorrect password
             echo 'Incorrect username and/or password!';
@@ -53,6 +53,5 @@ if ($stmt = $con->prepare('SELECT id, password FROM account WHERE nick_name = ?'
 	$stmt->close();
 }
 
-?>
 
 
