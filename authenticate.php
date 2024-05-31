@@ -1,10 +1,11 @@
 <?php
 session_start();
+ini_set('display_errors', '1');
 // Thay đổi thông tin này thành thông tin kết nối của bạn.
 $DATABASE_HOST = 'localhost';
 $DATABASE_USER = 'root';
 $DATABASE_PASS = '';
-$DATABASE_NAME = 'phplogin';
+$DATABASE_NAME = 'blog';
 // Hãy thử và kết nối bằng thông tin trên.
 $con = mysqli_connect($DATABASE_HOST, $DATABASE_USER, $DATABASE_PASS, $DATABASE_NAME);
 if ( mysqli_connect_errno() ) {
@@ -19,7 +20,7 @@ if ( !isset($_POST['username'], $_POST['password']) ) {
 }
 // Chuẩn bị SQL của chúng ta, việc chuẩn bị câu lệnh SQL sẽ ngăn cản việc tiêm SQL.
 
-if ($stmt = $con->prepare('SELECT id, password FROM accounts WHERE username = ?')) {
+if ($stmt = $con->prepare('SELECT id, password FROM account WHERE nick_name = ?')) {
 	// Liên kết các tham số (s = string, i = int, b = blob, v.v.), trong trường hợp của chúng tôi tên người dùng là một chuỗi nên chúng tôi sử dụng "s"
 	$stmt->bind_param('s', $_POST['username']);
 	$stmt->execute();

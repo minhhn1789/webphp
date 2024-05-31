@@ -4,7 +4,7 @@
 session_start();
 // Nếu người dùng chưa đăng nhập sẽ chuyển hướng đến trang đăng nhập...
 if (!isset($_SESSION['loggedin'])) {
-	header('Location: index.php');
+	header('Location: login.php');
 	exit;
 }
 ?>
