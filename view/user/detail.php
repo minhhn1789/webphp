@@ -1,10 +1,11 @@
-<?php include "header.php";
+<?php
+include "header.php";
 ini_set('display_errors', '1');
 ?>
 <html>
-	<head><link href="style.css" rel="stylesheet" type="text/css"></head>
+	<head><link href="../resource/css/style.css" rel="stylesheet" type="text/css"></head>
 		<meta charset="utf-8">
-		<title>Register</title>
+		<title>User Information</title>
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
 	</head>
 	<body>
@@ -27,7 +28,7 @@ ini_set('display_errors', '1');
 		<div class="bg_register"></div>
 		<div class="register">
 			<h1>Register</h1>
-			<form action="create_user.php" method="post" id="form_register">
+			<form action="../../controller/user/edit_user.php" method="post" id="form_edit">
 				<label for="fullname">
 					<i class="fas fa-user"></i>
 				</label>

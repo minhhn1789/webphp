@@ -13,13 +13,13 @@
     <title>Blog</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="view/resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Theme CSS -->
-    <link href="resource/css/clean-blog.css" rel="stylesheet">
+    <link href="view/resource/css/clean-blog.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="view/resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
@@ -44,18 +44,18 @@
                     <a href="/blog">Home</a>
                 </li>
                 <?php
-                    if (isset($_SESSION['loggedin'])) {
+                    if (isset($_SESSION['login'])) {
                         echo "                
                             <li class='dropdown'>
-                                <a class='dropbtn'>Welcome ".$_SESSION['name']."</a>
+                                <a class='dropbtn'>Welcome ".$_SESSION['name']. "</a>
                                 <div class='dropdown-content'>
                                     <a class='dropdown_item-1' href='#'>Account</a>
                                     <a class='dropdown_item-2' href='#'>Blogs</a>
-                                    <a class='dropdown_item-3' href='logout.php'>Logout</a>
+                                    <a class='dropdown_item-3' href='view/logout.php'>Logout</a>
                                 </div>
                             </li>";
                     }else{
-                        echo "<li><a href='login.php'>Login</a></li>";
+                        echo "<li><a href='view/login.php'>Login</a></li>";
                     }
                 ?>
             </ul>
@@ -180,17 +180,17 @@
 </footer>
 
 <!-- jQuery -->
-<script src="resource/vendor/jquery/jquery.min.js"></script>
+<script src="view/resource/vendor/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="resource/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="view/resource/vendor/bootstrap/js/bootstrap.min.js"></script>
 
 <!-- Contact Form JavaScript -->
-<script src="resource/js/jqBootstrapValidation.js"></script>
-<script src="resource/js/contact_me.js"></script>
+<script src="view/resource/js/jqBootstrapValidation.js"></script>
+<script src="view/resource/js/contact_me.js"></script>
 
 <!-- Theme JavaScript -->
-<script src="resource/js/clean-blog.min.js"></script>
+<script src="view/resource/js/clean-blog.min.js"></script>
 
 </body>
 

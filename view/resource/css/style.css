@@ -14,7 +14,7 @@ body {
     z-index: 1;
     display: block;
     height: 100%;
-    background-image: url("resource/img/background.jpg");
+    background-image: url("../img/background.jpg");
     background-position: center;
     background-size: cover;
     filter: blur(3px);
@@ -27,7 +27,7 @@ body {
   z-index: 1;
   display: block;
   height: 100%;
-  background-image: url("resource/img/background.jpg");
+  background-image: url("../img/background.jpg");
   background-position: center;
   background-size: cover;
   filter: blur(3px);
@@ -365,6 +365,20 @@ body.loggedin {
     text-align: center;
 }
 
+.popup .message_error {
+    visibility: hidden;
+    position:absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #9f0000e8;
+    color: #fff;
+    border-radius: 6px;
+    z-index: 99999;
+    width: 50%;
+    text-align: center;
+}
+
 #myPopup {
     display: flex;
 }
@@ -373,6 +387,18 @@ body.loggedin {
 }
 
 #myPopup a{
+    margin-left: auto;
+    padding-right: 5px;
+}
+
+#errorPopup {
+    display: flex;
+}
+#errorPopup h1{
+    margin-left: auto;
+}
+
+#errorPopup a{
     margin-left: auto;
     padding-right: 5px;
 }
