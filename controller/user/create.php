@@ -37,6 +37,7 @@ try{
         }
 
         try {
+            $password_hash = password_hash($_POST['password'], PASSWORD_BCRYPT);
             $user = Users::create(
                 $pdo,
                 $_POST['full_name'],
@@ -44,21 +45,12 @@ try{
                 $_POST['age'],
                 $_POST['sex'],
                 $_POST['phone_number'],
-                $_POST['email']
+                $_POST['email'],
+                $_POST['username'],
+                $password_hash
             );
 
-            $user_id = (int)$user->getId();
-            if($user_id) {
-                $password_hash = password_hash($_POST['password'], PASSWORD_BCRYPT);
-                $status = 0;
-                $account = Accounts::create(
-                    $pdo,
-                    $user->getId(),
-                    $_POST['username'],
-                    $password_hash,
-                    $status
-                );
-            }else{
+            if(!$user->getId() && !$user->getAccountId()) {
                 throw new Exception("Cannot create user!");
             }
         }catch (Exception $e){

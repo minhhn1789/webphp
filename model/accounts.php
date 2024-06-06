@@ -6,7 +6,7 @@ use PDOException;
 class Accounts {
     const ID = 'id';
     const USER_ID = 'user_id';
-    const USER_NAME = 'user_name';
+    const USERNAME = 'username';
     const PASSWORD = 'password';
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
@@ -16,7 +16,7 @@ class Accounts {
     private $pdo;
     private $id;
     private $user_id;
-    private $user_name;
+    private $username;
     private $password;
     private $status;
 
@@ -24,14 +24,14 @@ class Accounts {
         $pdo,
         $id = null,
         $user_id = null,
-        $user_name = null,
+        $username = null,
         $password = null,
         $status = null
     ){
         $this->pdo = $pdo;
         $this->id = $id;
         $this->user_id = $user_id;
-        $this->user_name = $user_name;
+        $this->username = $username;
         $this->password = $password;
         $this->status = $status;
     }
@@ -44,8 +44,8 @@ class Accounts {
         return $this->user_id;
     }
 
-    public function getUserName() {
-        return $this->user_name;
+    public function getUsername() {
+        return $this->username;
     }
 
     public function getPassword() {
@@ -62,9 +62,9 @@ class Accounts {
         return $this;
     }
 
-    public function setUserName($userName): Accounts
+    public function setUsername($username): Accounts
     {
-        $this->user_name = $userName;
+        $this->username = $username;
         return $this;
     }
 
@@ -83,9 +83,9 @@ class Accounts {
     /**
      * @throws exception
      */
-    public static function create($pdo, $user_id, $user_name, $password, $status): Accounts
+    public static function create($pdo, $user_id, $username, $password, $status): Accounts
     {
-        $account = new self($pdo, null, $user_id, $user_name, $password, $status);
+        $account = new self($pdo, null, $user_id, $username, $password, $status);
         $account->save();
         $account->id = $account->pdo->lastInsertId();
         return $account;
@@ -98,9 +98,9 @@ class Accounts {
     public function save(): Accounts
     {
         if($this->id === null){
-            $query = "insert into accounts(user_id, user_name, password, status) values(:user_id, :user_name, :password, :status)";
+            $query = "insert into accounts(user_id, username, password, status) values(:user_id, :username, :password, :status)";
         }else{
-            $query = "update accounts set user_id = :user_id, user_name = :user_name, password = :password, status = :status where id = :id";
+            $query = "update accounts set user_id = :user_id, username = :username, password = :password, status = :status where id = :id";
         }
         try{
             $this->pdo->beginTransaction();
@@ -110,7 +110,7 @@ class Accounts {
                 $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
             }
             $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
-            $stmt->bindParam(':user_name', $this->user_name, PDO::PARAM_STR);
+            $stmt->bindParam(':username', $this->username, PDO::PARAM_STR);
             $stmt->bindParam(':password', $this->password, PDO::PARAM_STR);
             $stmt->bindParam(':status', $this->status, PDO::PARAM_STR);
             $stmt->execute();
@@ -122,57 +122,29 @@ class Accounts {
     }
 
     /**
-     * @throws exception
-     */
-    public function edit($user_id = null, $user_name = null, $password = null, $status = null): Accounts
-    {
-        if($user_id !== null){
-            $this->user_id = $user_id;
-        }
-        if($user_name !== null){
-            $this->user_name = $user_name;
-        }
-        if($password !== null){
-            $this->password = $password;
-        }
-        if($status !== null){
-            $this->status = $status;
-        }
-
-        $this->save();
-        return $this;
-    }
-
-    /**
-     * @return void
-     * @throws exception
-     */
-    public function delete(){
-        if ($this->id !== null) {
-            try{
-                $stmt = $this->pdo->prepare("DELETE FROM accounts WHERE id = ?");
-                $stmt->execute([$this->id]);
-            } catch (PDOException $e) {
-                throw new exception('Cannot delete account.');
-            }
-        }
-        $this->id = null;
-        $this->user_id = null;
-        $this->user_name = null;
-        $this->password = null;
-        $this->status = null;
-    }
-
-    /**
      * @throws Exception
      */
-    public function getByUserName() {
+    public static function getByUserName($pdo, $username): Accounts
+    {
         try{
-            $stmt = $this->pdo->prepare(self::BASE_QUERY . self::USER_NAME ." = ?");
-            $stmt->execute([$this->user_name]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $pdo->prepare(self::BASE_QUERY . self::USERNAME ." = ?");
+            $stmt->execute([$username]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if(count($result)){
+                foreach ($result as $value){
+                    return new Accounts(
+                        $pdo,
+                        $value['id'],
+                        $value['user_id'],
+                        $value['username'],
+                        $value['password'],
+                        $value['status']
+                    );
+                }
+            }
+            return new Accounts($pdo);
         } catch (PDOException $e) {
-            throw new exception('Cannot get user with id: '.$this->user_name);
+            throw new exception('Cannot get user with id: '.$username);
         }
     }
 

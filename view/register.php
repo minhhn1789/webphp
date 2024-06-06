@@ -28,7 +28,7 @@ ini_set('display_errors', '1');
 		<div class="bg_register"></div>
 		<div class="register">
 			<h1>Register</h1>
-			<form action="../controller/user/create_user.php" method="post" id="form_register">
+			<form action="../controller/user/create.php" method="post" id="form_register">
 				<label for="full_name">
 					<i class="fas fa-user"></i>
 				</label>

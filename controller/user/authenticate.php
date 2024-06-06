@@ -14,13 +14,14 @@ try{
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $account = new Accounts($pdo);
-    $account->setUserName($_POST['username']);
-    $results = $account->getByUserName();
-    if (count($results) == 1){
-        $account_data = $results[0];
-        if (password_verify($_POST['password'], $account_data['password'])){
-            $_SESSION['name'] =  $account_data['user_name'];
+    $account = Accounts::getByUserName(
+        $pdo,
+        $_POST['username']
+    );
+    if ($account->getId()){
+        if (password_verify($_POST['password'], $account->getPassword())){
+            $_SESSION['name'] =  $account->getUsername();
+            $_SESSION['user_id'] = $account->getUserId();
             $_SESSION['login'] = TRUE;
             header('Location: /blog');
             exit;

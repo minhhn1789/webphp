@@ -1,10 +1,13 @@
 <?php
 namespace model;
+include "accounts.php";
 use Exception;
 use PDO;
 use PDOException;
+use model\Accounts;
 class Users
 {
+    const TABLE = 'users';
     const ID = 'id';
     const ROLE_ADMIN = 'admin';
     const ROLE_USER = 'user';
@@ -17,7 +20,7 @@ class Users
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
 
-    const BASE_QUERY = 'SELECT * FROM users WHERE ';
+    const BASE_QUERY = 'SELECT * FROM users LEFT JOIN accounts ON users.id = accounts.user_id WHERE ';
 
     private $id;
     private $full_name;
@@ -28,6 +31,9 @@ class Users
     private $email;
     private $role;
     private $status;
+    private $accountId;
+    private $username;
+    private $password;
     private $pdo;
 
     public function __construct(
@@ -39,6 +45,9 @@ class Users
         $sex = null,
         $phone_number = null,
         $email = null,
+        $accountId = null,
+        $username = null,
+        $password = null,
         $role = self::ROLE_USER,
         $status = self::STATUS_ACTIVE
     ){
@@ -50,6 +59,9 @@ class Users
         $this->sex = $sex;
         $this->phone_number = $phone_number;
         $this->email = $email;
+        $this->accountId = $accountId;
+        $this->username = $username;
+        $this->password = $password;
         $this->role = $role;
         $this->status = $status;
     }
@@ -88,6 +100,18 @@ class Users
 
     public function getStatus() {
         return $this->status;
+    }
+
+    public function getAccountId() {
+        return $this->accountId;
+    }
+
+    public function getUsername(){
+        return $this->username;
+    }
+
+    public function getPassword(){
+        return $this->password;
     }
 
     public function setFullName($full_name): Users
@@ -138,13 +162,32 @@ class Users
         return $this;
     }
 
+    public function setAccountId($id): Users
+    {
+        $this->accountId = $id;
+        return $this;
+    }
+
+    public function setUsername($username): Users
+    {
+        $this->username = $username;
+        return $this;
+    }
+
+    public function setPassword($password): Users
+    {
+        $this->password = $password;
+        return $this;
+    }
+
     /**
      * @throws exception
      */
-    public static function create($pdo, $full_name, $address, $age, $sex, $phone_number, $email, $role = self::ROLE_USER, $status = self::STATUS_ACTIVE): Users
+    public static function create($pdo, $full_name, $address, $age, $sex, $phone_number, $email, $username, $password, $role = self::ROLE_USER, $status = self::STATUS_ACTIVE): Users
     {
-        $user = new self($pdo, null, $full_name, $address,  $age, $sex, $phone_number, $email, $role, $status);
+        $user = new self($pdo, null, $full_name, $address,  $age, $sex, $phone_number, $email, null, $username, $password, $role, $status);
         $user->save();
+        $user->_createAccount();
         return $user;
     }
 
@@ -186,36 +229,57 @@ class Users
     }
 
     /**
-     * @throws exception
+     * @throws Exception
      */
-    public function edit($full_name = null, $address = null, $age = null, $sex = null, $phone_number = null, $email = null, $role = null, $status = null): Users
+    public function update(): Users
     {
-        if($full_name !== null){
-            $this->full_name = $full_name;
-        }
-        if($address !== null){
-            $this->address = $address;
-        }
-        if($age !== null){
-            $this->age = $age;
-        }
-        if($sex !== null){
-            $this->sex = $sex;
-        }
-        if($phone_number !== null){
-            $this->phone_number = $phone_number;
-        }
-        if($email !== null){
-            $this->email = $email;
-        }
-        if($role !== null){
-            $this->role = $role;
-        }
-        if($status !== null){
-            $this->status = $status;
-        }
         $this->save();
+        $this->_saveAccount();
         return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function _createAccount(): void
+    {
+        try{
+            $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
+            $status = 0;
+            $account = Accounts::create(
+                $this->pdo,
+                $this->getId(),
+                $this->getUsername(),
+                $password_hash,
+                $status
+            );
+            $this->setAccountId($account->getId());
+            $this->setUsername($account->getUserName());
+            $this->setPassword($account->getPassword());
+        } catch (PDOException $e) {
+            throw new exception('Cannot save account.');
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function _saveAccount(){
+        try{
+            $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
+            $status = 0;
+            $account = new Accounts(
+                $this->pdo,
+                $this->getAccountId(),
+                $this->getId(),
+                $this->getUsername(),
+                $password_hash,
+                $status
+            );
+            $account->save();
+        } catch (PDOException $e) {
+            throw new exception('Cannot save account.');
+        }
     }
 
     /**
@@ -225,8 +289,10 @@ class Users
     public function delete(){
         if ($this->id !== null) {
             try{
-                $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = ?");
-                $stmt->execute([$this->id]);
+                $stmt_account = $this->pdo->prepare("DELETE FROM accounts WHERE user_id = ?");
+                $stmt_account->execute([$this->id]);
+                $stmt_user = $this->pdo->prepare("DELETE FROM users WHERE id = ?");
+                $stmt_user->execute([$this->id]);
             } catch (PDOException $e) {
                 throw new exception('Cannot delete user.');
             }
@@ -245,14 +311,34 @@ class Users
     /**
      * @throws Exception
      */
-    public function getById() {
+    public static function getById($pdo, $id): Users
+    {
         try{
-            $stmt = $this->pdo->prepare(self::BASE_QUERY . self::ID. " = ?");
-            $stmt->execute([$this->id]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+            $stmt = $pdo->prepare(self::BASE_QUERY . self::TABLE. "." . self::ID. " = ?");
+            $stmt->execute([$id]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if(count($result)){
+                foreach ($result as $value){
+                    return new Users(
+                        $pdo,
+                        $value['id'],
+                        $value['full_name'],
+                        $value['address'],
+                        $value['age'],
+                        $value['sex'],
+                        $value['phone_number'],
+                        $value['email'],
+                        $value['user_id'],
+                        $value['username'],
+                        $value['password'],
+                        $value['role'],
+                        $value['status']
+                    );
+                }
+            }
+            return new Users($pdo);
         } catch (PDOException $e) {
-            throw new exception('Cannot get user with id: '.$this->id);
+            throw new exception('Cannot get user with id: '.$id);
         }
     }
 

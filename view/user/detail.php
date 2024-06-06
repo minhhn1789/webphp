@@ -1,112 +1,209 @@
-<?php
-include "header.php";
-ini_set('display_errors', '1');
-?>
-<html>
-	<head><link href="../resource/css/style.css" rel="stylesheet" type="text/css"></head>
-		<meta charset="utf-8">
-		<title>User Information</title>
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
-	</head>
-	<body>
-        <div class="popup">
-            <div class="popuptext" id="popupContent">
-                 <div id="myPopup"><h1>Error message</h1><a onclick="close_error()">x</a></div>
-                 <div>
-                     <ol>
-                         <?php
-                         if(isset($_SESSION['error_message'])){
-                             foreach ($_SESSION['error_message'] as $err) {
-                                 echo "<li>".$err."</li>";
-                             }
-                         }
-                         ?>
-                     </ol>
-                 </div>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Clean Blog - Contact</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="../resource/css/clean-blog.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="../../index.php">Home</a>
+                </li>
+                <?php
+                if (isset($_SESSION['login'])) {
+                    echo "                
+                            <li class='dropdown'>
+                                <a class='dropbtn'>".$_SESSION['name']. "</a>
+                                <div class='dropdown-content'>
+                                    <a class='dropdown_item-1' href='view/user/detail.php'>Account</a>
+                                    <a class='dropdown_item-2' href='../posts/list.php?author_id=1'>Posts</a>
+                                    <a class='dropdown_item-3' href='../logout.php'>Logout</a>
+                                </div>
+                            </li>";
+                }
+                ?>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Page Header -->
+<!-- Set your background image for this header on the line below. -->
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="page-heading">
+                    <h1>Account Detail</h1>
+                    <hr class="small">
+                </div>
             </div>
         </div>
-		<div class="bg_register"></div>
-		<div class="register">
-			<h1>Register</h1>
-			<form action="../../controller/user/edit_user.php" method="post" id="form_edit">
-				<label for="fullname">
-					<i class="fas fa-user"></i>
-				</label>
-				<input type="text" value="<?= $_SESSION['fullname'] ?? '' ?>" name="fullname" placeholder="Fullname" id="fullname" required>
-                <label for="sex">
-					<i class="fas fa-venus-mars"></i>
-				</label>
-				<select name="sex" id="sex">
-					<option value="">--Please choose an option--</option>
-					<option value="male">Male</option>
-					<option value="female">Female</option>
-				</select>
-                <label for="age">
-					<i class="fas fa-calendar"></i>
-				</label>
-				<input type="number" value="<?= $_SESSION['age'] ?? '' ?>" name="age" placeholder="Age" id="age" required>
-                <label for="phone_number">
-					<i class="fas fa-mobile"></i>
-				</label>
-				<input type="number" value="<?= $_SESSION['phone_number'] ?? '' ?>" name="phone_number" placeholder="Phone Number" id="phone_number" required>
-                <label for="email">
-					<i class="fas fa-envelope"></i>
-				</label>
-				<input type="text" value="<?= $_SESSION['email'] ?? '' ?>" name="email" placeholder="Email" id="email" required>
+    </div>
+</header>
 
-                <label for="address">
-					<i class="fas fa-location-arrow"></i>
-				</label>
-				<input type="text" name="address" value="<?= $_SESSION['address'] ?? '' ?>" placeholder="Address" id="address" required>
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <form method="post" id="update_user" action="../../controller/user/edit.php" novalidate>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-with-value controls">
+                        <label for="full_name">Full Name</label>
+                        <input type="text" class="form-control" placeholder="Full Name" id="full_name" required>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="sex">Gender</label>
+                        <select name="sex" id="sex" class="form-control">
+                            <option value="">--Please choose an option--</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="age">Age</label>
+                        <input type="number" class="form-control" placeholder="Age" id="age" required>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="phone_number">Phone Number</label>
+                        <input type="number" class="form-control" placeholder="Phone Number" id="phone_number" required>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="email">Email</label>
+                        <input type="text" class="form-control" placeholder="Email" id="email" required>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="address">Address</label>
+                        <input type="text" class="form-control" placeholder="Address" id="address" required>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" placeholder="Username" id="username" required>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="password">Password</label>
+                        <input type="text" class="form-control" placeholder="Password" id="password" required>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="re_password">Re-Enter Password</label>
+                        <input type="text" class="form-control" placeholder="Re-Enter Password" id="re_password" required>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="form-group col-xs-12">
+                        <button type="submit" class="btn btn-default">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-                <label for="nick_name">
-					<i class="fas fa-user"></i>
-				</label>
-				<input type="text" name="nick_name" value="<?= $_SESSION['nick_name'] ?? '' ?>" placeholder="Username" id="nick_name" required>
+<hr>
 
-                <label for="password">
-					<i class="fas fa-lock"></i>
-				</label>
-				<input type="password" name="password" value="<?= $_SESSION['password'] ?? '' ?>" placeholder="Password" id="password" required>
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <li>
+                        <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </a>
+                    </li>
+                </ul>
+                <p class="copyright text-muted">Copyright &copy; Your Website 2016</p>
+            </div>
+        </div>
+    </div>
+</footer>
 
-                <label for="re_password">
-					<i class="fas fa-lock"></i>
-				</label>
-				<input type="password" name="re_password" value="<?= $_SESSION['re_password'] ?? '' ?>" placeholder="Re-Enter the password" id="re_password" required>
+<!-- jQuery -->
+<script src="../resource/vendor/jquery/jquery.min.js"></script>
 
+<!-- Bootstrap Core JavaScript -->
+<script src="../resource/vendor/bootstrap/js/bootstrap.min.js"></script>
 
-                <button type="submit" form="form_register" value="register" class="button-82-pushable" role="button">
-					<span class="button-82-shadow"></span>
-					<span class="button-82-edge"></span>
-					<span class="button-82-front text">
-					  Register
-					</span>
-				  </button>
-			</form>
-		</div>
-        <script>
-            const temp = value = "<?= $_SESSION['sex'] ?? '' ?>" ;
-            const mySelect = document.getElementById('sex');
-            if (temp !== null){
-                for (let i in mySelect) {
-                    if (mySelect[i].value === temp) {
-                        mySelect.selectedIndex = i;
-                        break;
-                    }
-                }
-            }
+<!-- Contact Form JavaScript -->
+<script src="../resource/js/jqBootstrapValidation.js"></script>
+<script src="../resource/js/contact_me.js"></script>
 
-            const error =  "<?= isset($_SESSION['error_message']) ? 1 : 0 ?>" ;
-            if (error === "1"){
-                const popup = document.getElementById("popupContent");
-                popup.style.visibility = "visible";
-            }
+<!-- Theme JavaScript -->
+<script src="../resource/js/clean-blog.min.js"></script>
 
-            function close_error(){
-                const popup = document.getElementById("popupContent");
-                popup.style.visibility = "hidden";
-            }
-        </script>
-	</body>
+</body>
+
 </html>
-
