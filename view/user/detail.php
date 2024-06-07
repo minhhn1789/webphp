@@ -1,6 +1,50 @@
+<?php
+include_once "../../model/database.php";
+include_once "../../model/users.php";
+session_start();
+use model\Database;
+use model\Users;
+
+$id = '';
+$full_name = '';
+$gender = '';
+$age = '';
+$phone_number = '';
+$email = '';
+$address = '';
+$username = '';
+$error = 'Please Login!';
+if (isset($_GET['clear_mess'])){
+    $_SESSION['error_message'] = '';
+    $_SESSION['message'] = '';
+}
+$message = $_SESSION['message'] ?? '';
+
+
+if (isset($_GET['id']) && isset($_SESSION['login'])){
+    try {
+        if($_SESSION['login']) {
+            $pdo = new Database();
+            $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $user = USERS::getById($pdo, $_GET['id']);
+            $id = $user->getId();
+            $full_name = $user->getFullName();
+            $gender = $user->getSex();
+            $age = $user->getAge();
+            $phone_number = $user->getPhoneNumber();
+            $email = $user->getEmail();
+            $address = $user->getAddress();
+            $username = $user->getUsername();
+            $error = $_SESSION['error_message'] ?? '';
+        }
+    } catch (Exception $e) {
+        $error = 'Can not get user information: '.  $e->getMessage();
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
     <meta charset="utf-8">
@@ -44,16 +88,18 @@
                     <a href="../../index.php">Home</a>
                 </li>
                 <?php
-                if (isset($_SESSION['login'])) {
+                if (isset($_SESSION['login']) && $id) {
                     echo "                
                             <li class='dropdown'>
-                                <a class='dropbtn'>".$_SESSION['name']. "</a>
+                                <a class='dropbtn'>".$username. "</a>
                                 <div class='dropdown-content'>
-                                    <a class='dropdown_item-1' href='view/user/detail.php'>Account</a>
-                                    <a class='dropdown_item-2' href='../posts/list.php?author_id=1'>Posts</a>
+                                    <a class='dropdown_item-1' href='detail.php?id=".$id."'>Account</a>
+                                    <a class='dropdown_item-2' href='../posts/list.php'>Posts</a>
                                     <a class='dropdown_item-3' href='../logout.php'>Logout</a>
                                 </div>
                             </li>";
+                }else{
+                    echo "<li><a href='../login.php'>Login</a></li>";
                 }
                 ?>
             </ul>
@@ -65,6 +111,35 @@
 
 <!-- Page Header -->
 <!-- Set your background image for this header on the line below. -->
+<div class="popup">
+    <div class="popuptext" id="popupContent">
+        <div id="myPopup"><h1>Error message</h1><a href="detail.php?id=<?= $id ?>&clear_mess=true">x</a></div>
+        <div>
+            <?php
+            if(is_array($error)){
+                foreach ($error as $err) {
+                    echo "<li>".$err."</li>";
+                }
+            }else{
+                echo "<p>".$error."</p>";
+            }
+            ?>
+        </div>
+    </div>
+</div>
+
+<div class="popup">
+    <div class="popuptextSuccess" id="popupContentSuccess">
+        <div id="myPopupSuccess"><h1>Message</h1><a href="detail.php?id=<?= $id ?>&clear_mess=true">x</a></div>
+        <div>
+            <?php
+            if(isset($_SESSION['message'])){
+                echo "<p>".$_SESSION['message']."</p>";
+            }
+            ?>
+        </div>
+    </div>
+</div>
 <header class="intro-header">
     <div class="container">
         <div class="row">
@@ -82,11 +157,12 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            <form method="post" id="update_user" action="../../controller/user/edit.php" novalidate>
+            <form action="../../controller/user/detail.php" method="post" id="update_user">
+                <input type="hidden" value="<?= $id ?>" id="user_id" name="user_id">
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-with-value controls">
                         <label for="full_name">Full Name</label>
-                        <input type="text" class="form-control" placeholder="Full Name" id="full_name" required>
+                        <input value="<?= $full_name ?>" type="text" class="form-control" placeholder="Full Name" id="full_name" name="full_name" required>
                     </div>
                 </div>
                 <div class="row control-group">
@@ -102,49 +178,55 @@
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <label for="age">Age</label>
-                        <input type="number" class="form-control" placeholder="Age" id="age" required>
+                        <input value="<?= $age ?>" type="number" class="form-control" placeholder="Age" id="age" name="age" required>
                     </div>
                 </div>
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <label for="phone_number">Phone Number</label>
-                        <input type="number" class="form-control" placeholder="Phone Number" id="phone_number" required>
+                        <input value="<?= $phone_number ?>" type="number" class="form-control" placeholder="Phone Number" id="phone_number" name="phone_number" required>
                     </div>
                 </div>
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <label for="email">Email</label>
-                        <input type="text" class="form-control" placeholder="Email" id="email" required>
+                        <input value="<?= $email ?>" type="text" class="form-control" placeholder="Email" id="email" name="email" required>
                     </div>
                 </div>
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <label for="address">Address</label>
-                        <input type="text" class="form-control" placeholder="Address" id="address" required>
+                        <input value="<?= $address ?>" type="text" class="form-control" placeholder="Address" id="address" name="address" required>
                     </div>
                 </div>
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <label for="username">Username</label>
-                        <input type="text" class="form-control" placeholder="Username" id="username" required>
+                        <input value="<?= $username ?>" type="text" class="form-control" placeholder="Username" id="username" name="username" required>
                     </div>
                 </div>
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
-                        <label for="password">Password</label>
-                        <input type="text" class="form-control" placeholder="Password" id="password" required>
+                        <label for="current_password">Current Password</label>
+                        <input type="password" class="form-control" placeholder="Current Password" id="current_password" name="current_password">
                     </div>
                 </div>
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
-                        <label for="re_password">Re-Enter Password</label>
-                        <input type="text" class="form-control" placeholder="Re-Enter Password" id="re_password" required>
+                        <label for="new_password">New Password</label>
+                        <input type="password" class="form-control" placeholder="New Password" id="new_password" name="new_password">
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="re_password">Re-Enter New Password</label>
+                        <input type="password" class="form-control" placeholder="Re-Enter New Password" id="re_password" name="re_password">
                     </div>
                 </div>
                 <br>
                 <div class="row">
                     <div class="form-group col-xs-12">
-                        <button type="submit" class="btn btn-default">Save</button>
+                        <button type="submit" class="btn btn-default" form="update_user" value="update" role="button">Save</button>
                     </div>
                 </div>
             </form>
@@ -185,7 +267,6 @@
                         </a>
                     </li>
                 </ul>
-                <p class="copyright text-muted">Copyright &copy; Your Website 2016</p>
             </div>
         </div>
     </div>
@@ -197,12 +278,39 @@
 <!-- Bootstrap Core JavaScript -->
 <script src="../resource/vendor/bootstrap/js/bootstrap.min.js"></script>
 
-<!-- Contact Form JavaScript -->
-<script src="../resource/js/jqBootstrapValidation.js"></script>
-<script src="../resource/js/contact_me.js"></script>
-
 <!-- Theme JavaScript -->
 <script src="../resource/js/clean-blog.min.js"></script>
+
+<script>
+    const temp = value = "<?= $gender ?? '' ?>" ;
+    const mySelect = document.getElementById('sex');
+    if (temp !== null){
+        for (let i in mySelect) {
+            if (mySelect[i].value === temp) {
+                mySelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    const error =  "<?php
+        if(is_array($error)) {
+            echo !empty($error) ? 1 : 0;
+        }else{
+            echo $error ? 1 : 0;
+        }
+        ?>" ;
+
+    const mess =  "<?= $message ? 1 : 0 ?>" ;
+    if (mess === "1"){
+        const popup = document.getElementById("popupContentSuccess");
+        popup.style.visibility = "visible";
+    }
+    if (error === "1"){
+        const popup = document.getElementById("popupContent");
+        popup.style.visibility = "visible";
+    }
+</script>
 
 </body>
 

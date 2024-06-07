@@ -82,6 +82,13 @@ ini_set('display_errors', '1');
 					  Register
 					</span>
 				  </button>
+
+                <div class="login_back">
+                    <a href="login.php?clear_form=true">
+                        Back to Login
+                        <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
 			</form>
 		</div>
         <script>

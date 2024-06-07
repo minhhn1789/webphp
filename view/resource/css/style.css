@@ -149,6 +149,17 @@ body {
   margin-bottom: 30px;
   padding: 0 15px;
 }
+
+.register form .login_back{
+    display: inline-block;
+    width: 310px;
+    margin-top: 30px;
+    text-align: center;
+}
+
+.register form .login_back a{
+    color: #ffffff;
+}
 /* ----------------------- */
 .navtop {
 	background-color: #2f3947;
@@ -357,7 +368,7 @@ body.loggedin {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background-color: #1772a0;;
+    background-color: #1772a0;
     color: #fff;
     border-radius: 6px;
     z-index: 99999;

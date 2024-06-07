@@ -1,10 +1,8 @@
 <?php
 namespace model;
-include "accounts.php";
 use Exception;
 use PDO;
 use PDOException;
-use model\Accounts;
 class Users
 {
     const TABLE = 'users';
@@ -20,7 +18,7 @@ class Users
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
 
-    const BASE_QUERY = 'SELECT * FROM users LEFT JOIN accounts ON users.id = accounts.user_id WHERE ';
+    const BASE_QUERY = 'SELECT users.*, accounts.username, accounts.password FROM users LEFT JOIN accounts ON users.id = accounts.user_id WHERE ';
 
     private $id;
     private $full_name;
@@ -31,7 +29,6 @@ class Users
     private $email;
     private $role;
     private $status;
-    private $accountId;
     private $username;
     private $password;
     private $pdo;
@@ -45,7 +42,6 @@ class Users
         $sex = null,
         $phone_number = null,
         $email = null,
-        $accountId = null,
         $username = null,
         $password = null,
         $role = self::ROLE_USER,
@@ -59,7 +55,6 @@ class Users
         $this->sex = $sex;
         $this->phone_number = $phone_number;
         $this->email = $email;
-        $this->accountId = $accountId;
         $this->username = $username;
         $this->password = $password;
         $this->role = $role;
@@ -102,16 +97,18 @@ class Users
         return $this->status;
     }
 
-    public function getAccountId() {
-        return $this->accountId;
-    }
-
     public function getUsername(){
         return $this->username;
     }
 
     public function getPassword(){
         return $this->password;
+    }
+
+    public function setId($id): Users
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function setFullName($full_name): Users
@@ -162,12 +159,6 @@ class Users
         return $this;
     }
 
-    public function setAccountId($id): Users
-    {
-        $this->accountId = $id;
-        return $this;
-    }
-
     public function setUsername($username): Users
     {
         $this->username = $username;
@@ -185,19 +176,20 @@ class Users
      */
     public static function create($pdo, $full_name, $address, $age, $sex, $phone_number, $email, $username, $password, $role = self::ROLE_USER, $status = self::STATUS_ACTIVE): Users
     {
-        $user = new self($pdo, null, $full_name, $address,  $age, $sex, $phone_number, $email, null, $username, $password, $role, $status);
-        $user->save();
+        $user = new self($pdo, null, $full_name, $address,  $age, $sex, $phone_number, $email,  $username, $password, $role, $status);
+        $user->save(True);
         $user->_createAccount();
         return $user;
     }
 
     /**
+     * @param bool $is_create
      * @return Users
-     * @throws exception
+     * @throws Exception
      */
-    public function save(): Users
+    public function save(bool $is_create = False): Users
     {
-        if($this->id === null){
+        if($is_create){
             $query = "insert into users(full_name, address, age, sex, phone_number,email, role, status) values(:full_name, :address, :age, :sex, :phone_number, :email, :role, :status)";
         }else{
             $query = "update users set full_name = :full_name, address = :address, age = :age, sex = :sex, phone_number = :phone_number, email = :email, role = :role, status = :status where id = :id";
@@ -244,18 +236,14 @@ class Users
     private function _createAccount(): void
     {
         try{
-            $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
             $status = 0;
-            $account = Accounts::create(
+            Accounts::create(
                 $this->pdo,
                 $this->getId(),
                 $this->getUsername(),
-                $password_hash,
+                $this->password,
                 $status
             );
-            $this->setAccountId($account->getId());
-            $this->setUsername($account->getUserName());
-            $this->setPassword($account->getPassword());
         } catch (PDOException $e) {
             throw new exception('Cannot save account.');
         }
@@ -266,14 +254,12 @@ class Users
      */
     private function _saveAccount(){
         try{
-            $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
             $status = 0;
             $account = new Accounts(
                 $this->pdo,
-                $this->getAccountId(),
                 $this->getId(),
                 $this->getUsername(),
-                $password_hash,
+                $this->password,
                 $status
             );
             $account->save();
@@ -328,7 +314,6 @@ class Users
                         $value['sex'],
                         $value['phone_number'],
                         $value['email'],
-                        $value['user_id'],
                         $value['username'],
                         $value['password'],
                         $value['role'],

@@ -49,7 +49,7 @@
                             <li class='dropdown'>
                                 <a class='dropbtn'>Welcome ".$_SESSION['name']. "</a>
                                 <div class='dropdown-content'>
-                                    <a class='dropdown_item-1' href='view/user/detail.php?id=". $_SESSION['user_id'] ."'>Account</a>
+                                    <a class='dropdown_item-1' href='view/user/detail.php?id=".$_SESSION['user_id']."'>Account</a>
                                     <a class='dropdown_item-2' href='#'>Posts</a>
                                     <a class='dropdown_item-3' href='view/logout.php'>Logout</a>
                                 </div>

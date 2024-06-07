@@ -11,7 +11,6 @@ include "../../model/users.php";
 use model\Database;
 use model\Check;
 use model\Users;
-use model\Accounts;
 
 try{
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -32,12 +31,11 @@ try{
         if(!empty($err)){
             $_SESSION = $_POST;
             $_SESSION['error_message'] =  $err;
-            header('Location: ../view/register.php');
+            header('Location: ../../view/register.php');
             exit;
         }
 
         try {
-            $password_hash = password_hash($_POST['password'], PASSWORD_BCRYPT);
             $user = Users::create(
                 $pdo,
                 $_POST['full_name'],
@@ -47,28 +45,28 @@ try{
                 $_POST['phone_number'],
                 $_POST['email'],
                 $_POST['username'],
-                $password_hash
+                $_POST['password']
             );
 
-            if(!$user->getId() && !$user->getAccountId()) {
+            if(!$user->getId()) {
                 throw new Exception("Cannot create user!");
             }
         }catch (Exception $e){
             $_SESSION = $_POST;
             $_SESSION['error_message'][] = 'Can not create new account caught exception: '.  $e->getMessage(). "\n";
-            header('Location: ../view/register.php');
+            header('Location: ../../view/register.php');
             exit;
         }
 
         $_SESSION['register'][] = 'Create account successful!';
         $_SESSION['register'][] = $_POST['username'];
-        header('Location: ../view/login.php');
+        header('Location: ../../view/login.php');
         exit;
 
     }
 } catch (Exception $e) {
     $_SESSION = $_POST;
     $_SESSION['error_message'] = $e;
-    header('Location: ../view/register.php');
+    header('Location: ../../view/register.php');
     exit;
 }

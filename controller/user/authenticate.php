@@ -18,7 +18,7 @@ try{
         $pdo,
         $_POST['username']
     );
-    if ($account->getId()){
+    if ($account->getUserId()){
         if (password_verify($_POST['password'], $account->getPassword())){
             $_SESSION['name'] =  $account->getUsername();
             $_SESSION['user_id'] = $account->getUserId();

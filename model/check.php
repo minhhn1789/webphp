@@ -1,10 +1,9 @@
 <?php
 
 namespace model;
-
+include_once "users.php";
+include_once "accounts.php";
 use Exception;
-use model\Users;
-use model\Accounts;
 
 class Check
 {
@@ -136,7 +135,8 @@ class Check
             $results = $user->filterByAttributes([[
                 USERS::EMAIL,
                 "=",
-                "'".$this->email."'"
+                "'".$this->email."'",
+                null
             ]]);
             if(count($results) > 0){
                 $this->err_arr[] = "Email: Email already exists!";
@@ -170,10 +170,8 @@ class Check
         }
 
         try{
-            $account = new Accounts($this->pdo);
-            $account->setUserName($this->user_name);
-            $results = $account->getByUserName();
-            if(count($results)){
+            $account = Accounts::getByUserName($this->pdo, $this->user_name);
+            if($account->getUserId()){
                 $this->err_arr[] = "Username: Username already exists!";
             }
         }catch (Exception $e) {
@@ -198,8 +196,7 @@ class Check
 
     public function checkAll():Check
     {
-        return $this
-            ->checkName()
+        return $this->checkName()
             ->checkEmail()
             ->checkAge()
             ->checkPhoneNumber()

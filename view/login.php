@@ -1,6 +1,11 @@
 <?php
 session_start();
 ini_set('display_errors', '1');
+if(isset($_GET['clear_form'])){
+    if($_GET['clear_form']){
+        $_SESSION = [];
+    }
+}
 ?>
 <html>
 	<head><link href="resource/css/style.css" rel="stylesheet" type="text/css"></head>

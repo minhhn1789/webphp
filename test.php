@@ -1,19 +1,37 @@
 <?php
 ini_set('display_errors', '1');
-session_start();
-include "database.php";
-$conn = connect_db();
-try {
-//    $sql = "INSERT INTO users(full_name, address, age, sex, phone_number,email) VALUES(?, ?, ?, ?, ?, ?)";
-//    $statement = mysqli_stmt_init($conn);
-//    $perpareStmt = mysqli_stmt_prepare($statement,$sql);
-//    mysqli_stmt_bind_param($statement,'ssisis', $_SESSION['fullname'],
-//        $_SESSION['address'],$_SESSION['age'], $_SESSION['sex'], $_SESSION['phone_number'], $_SESSION['email']
-//    );
-//    mysqli_stmt_execute($statement);
-}catch (Exception $e) {
-    echo $e->getMessage();
-    var_dump($statement);
-}
+include "model/database.php";
+include "model/users.php";
+use model\Users;
+use model\Database;
 
-//echo implode(' ', $_SESSION);
+
+$pdo = new Database();
+try{
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+//    $user = User::create(
+//        $dbh,
+//        null,
+//        'ha hoang',
+//        'asd asd',
+//        12,
+//        'Male',
+//        123123,
+//        'hahoanglc97@gmail.com',
+//        User::ROLE_USER,
+//        User::STATUS_INACTIVE
+//    );
+//    $id = $user->getId();
+//    $name = $user->getFullName();
+//    $newUser = new User($dbh, $id);
+//    $newUser->getById();
+
+    $user = Users::getById($pdo,24);
+    $account = \model\Accounts::getByUserName($pdo, 'admin');
+    echo $user->getFullName();
+    echo $account->getUsername();
+
+} catch (Exception $e) {
+    $pdo->rollBack();
+    echo "Failed: " . $e->getMessage();
+}

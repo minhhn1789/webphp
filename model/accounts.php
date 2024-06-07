@@ -4,7 +4,6 @@ use Exception;
 use PDO;
 use PDOException;
 class Accounts {
-    const ID = 'id';
     const USER_ID = 'user_id';
     const USERNAME = 'username';
     const PASSWORD = 'password';
@@ -14,7 +13,6 @@ class Accounts {
     const BASE_QUERY = 'SELECT * FROM accounts WHERE ';
 
     private $pdo;
-    private $id;
     private $user_id;
     private $username;
     private $password;
@@ -22,22 +20,16 @@ class Accounts {
 
     public function __construct(
         $pdo,
-        $id = null,
         $user_id = null,
         $username = null,
         $password = null,
         $status = null
     ){
         $this->pdo = $pdo;
-        $this->id = $id;
         $this->user_id = $user_id;
         $this->username = $username;
         $this->password = $password;
         $this->status = $status;
-    }
-
-    public function getId() {
-        return $this->id;
     }
 
     public function getUserId() {
@@ -85,33 +77,33 @@ class Accounts {
      */
     public static function create($pdo, $user_id, $username, $password, $status): Accounts
     {
-        $account = new self($pdo, null, $user_id, $username, $password, $status);
-        $account->save();
-        $account->id = $account->pdo->lastInsertId();
+        $account = new self($pdo, $user_id, $username, $password, $status);
+        $account->save(True);
         return $account;
     }
 
     /**
+     * @param bool $is_create
      * @return Accounts
-     * @throws exception
+     * @throws Exception
      */
-    public function save(): Accounts
+    public function save(bool $is_create = False): Accounts
     {
-        if($this->id === null){
+        if($is_create){
             $query = "insert into accounts(user_id, username, password, status) values(:user_id, :username, :password, :status)";
         }else{
-            $query = "update accounts set user_id = :user_id, username = :username, password = :password, status = :status where id = :id";
+            $query = "update accounts set username = :username,". ($this->password ? ' password = :password, ' : ' ') ."status = :status where user_id = :user_id";
         }
         try{
             $this->pdo->beginTransaction();
             $stmt = $this->pdo
                 ->prepare($query);
-            if($this->id !== null){
-                $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
-            }
             $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
             $stmt->bindParam(':username', $this->username, PDO::PARAM_STR);
-            $stmt->bindParam(':password', $this->password, PDO::PARAM_STR);
+            if($this->password){
+                $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
+                $stmt->bindParam(':password', $password_hash, PDO::PARAM_STR);
+            }
             $stmt->bindParam(':status', $this->status, PDO::PARAM_STR);
             $stmt->execute();
             $this->pdo->commit();
@@ -134,7 +126,6 @@ class Accounts {
                 foreach ($result as $value){
                     return new Accounts(
                         $pdo,
-                        $value['id'],
                         $value['user_id'],
                         $value['username'],
                         $value['password'],
@@ -144,7 +135,7 @@ class Accounts {
             }
             return new Accounts($pdo);
         } catch (PDOException $e) {
-            throw new exception('Cannot get user with id: '.$username);
+            throw new exception('Cannot get account with username: '.$username);
         }
     }
 
