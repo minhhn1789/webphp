@@ -1,29 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<?php session_start();
-include_once "model/database.php";
-include_once "model/blogs.php";
+<?php
+ini_set('display_errors', '1');
+
+include_once "../../model/database.php";
+include_once "../../model/blogs.php";
+include_once "../../model/users.php";
 session_start();
 use model\Database;
 use model\Blogs;
+use model\Users;
+
+$author_name = '';
+$user_id = '';
+$username = 'User';
+$error = 'Please Login!';
 $results = [];
-try {
-    $pdo = new Database();
-    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $posts = new Blogs($pdo);
-    $results = $posts->filterByAttributes([[
-        Blogs::TABLE.".".Blogs::STATUS,
-        "=",
-        "'".Blogs::STATUS_ACTIVE."'",
-        null
-    ]]);
-} catch (Exception $e) {
-    $error = 'Can not get post information: '.  $e->getMessage();
+if (isset($_GET['clear_mess'])){
+    $_SESSION['error_message'] = '';
+    $_SESSION['message'] = '';
 }
+$message = $_SESSION['message'] ?? '';
 
+
+if (isset($_GET['author_id'])){
+    try {
+            $user_id = $_SESSION['user_id'] ?? '';
+            $username = $_SESSION['name'] ?? '';
+            $pdo = new Database();
+            $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $author = Users::getById($pdo, $_GET['author_id']);
+            $author_name = $author->getFullName();
+            $posts = new Blogs($pdo);
+            $results = $posts->filterByAttributes([[
+                Blogs::AUTHOR_ID,
+                "=",
+                "'".$_GET['author_id']."'",
+                null
+            ]]);
+    } catch (Exception $e) {
+        $error = 'Can not get list posts: '.  $e->getMessage();
+    }
+}
 ?>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
 
     <meta charset="utf-8">
@@ -32,16 +52,16 @@ try {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Blog</title>
+    <title>Clean Blog - Contact</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="view/resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Theme CSS -->
-    <link href="view/resource/css/clean-blog.css" rel="stylesheet">
+    <link href="../resource/css/clean-blog.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="view/resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="../resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
@@ -59,26 +79,27 @@ try {
 <!-- Navigation -->
 <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
     <div class="container-fluid">
+
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a href="/blog">Home</a>
+                    <a href="../../index.php">Home</a>
                 </li>
                 <?php
-                    if (isset($_SESSION['login'])) {
-                        echo "                
+                if (isset($_SESSION['login']) && $user_id) {
+                    echo "                
                             <li class='dropdown'>
-                                <a class='dropbtn'>Welcome ".$_SESSION['name']. "</a>
+                                <a class='dropbtn'> Welcome ".$username. "</a>
                                 <div class='dropdown-content'>
-                                    <a class='dropdown_item-1' href='view/user/detail.php?id=".$_SESSION['user_id']."'>Account</a>
-                                    <a class='dropdown_item-2' href='view/posts/list.php'>Posts</a>
-                                    <a class='dropdown_item-3' href='view/logout.php'>Logout</a>
+                                    <a class='dropdown_item-1' href='../user/detail.php?id=".$user_id."'>Account</a>
+                                    <a class='dropdown_item-2' href='../posts/create.php'>Create Posts</a>
+                                    <a class='dropdown_item-3' href='../logout.php'>Logout</a>
                                 </div>
                             </li>";
-                    }else{
-                        echo "<li><a href='view/login.php'>Login</a></li>";
-                    }
+                }else{
+                    echo "<li><a href='../login.php'>Login</a></li>";
+                }
                 ?>
             </ul>
         </div>
@@ -88,15 +109,14 @@ try {
 </nav>
 
 <!-- Page Header -->
-<!-- Set your background image for this header on the line below. -->
 <header class="intro-header">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Blog</h1>
+                <div class="page-heading">
+                    <h1>List Posts By</h1>
                     <hr class="small">
-                    <span class="subheading">The trick in life is learning how to solve it</span>
+                    <h1><?= $author_name ?></h1>
                 </div>
             </div>
         </div>
@@ -117,7 +137,7 @@ try {
                     }
                     echo "
                         <div class='post-preview'>
-                            <a href='view/posts/post.php?id=".$result['id']."'>
+                            <a href='post.php?id=".$result['id']."'>
                                 <h2 class='post-title'>
                                     ".$result['title']."
                                 </h2>
@@ -125,7 +145,7 @@ try {
                                     ".$shortDes."
                                 </h3>
                             </a>
-                            <p class='post-meta'>Posted by <a href='view/posts/list_by_author.php?author_id=".$result['author_id']."'>".$result['full_name']."</a> at ".$result['updated_at']."</p>
+                            <p class='post-meta'>Posted by <a href='#'>".$result['full_name']."</a> at ".$result['updated_at']."</p>
                                 </div>
                         <hr>
                     ";
@@ -183,18 +203,20 @@ try {
 </footer>
 
 <!-- jQuery -->
-<script src="view/resource/vendor/jquery/jquery.min.js"></script>
+<script src="../resource/vendor/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="view/resource/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../resource/vendor/bootstrap/js/bootstrap.min.js"></script>
 
 <!-- Contact Form JavaScript -->
-<script src="view/resource/js/jqBootstrapValidation.js"></script>
-<script src="view/resource/js/contact_me.js"></script>
+<script src="../resource/js/jqBootstrapValidation.js"></script>
+<script src="../resource/js/contact_me.js"></script>
 
 <!-- Theme JavaScript -->
-<script src="view/resource/js/clean-blog.min.js"></script>
+<script src="../resource/js/clean-blog.min.js"></script>
 
 </body>
 
 </html>
+
+

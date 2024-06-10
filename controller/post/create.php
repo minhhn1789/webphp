@@ -31,7 +31,7 @@ try{
                 $pdo,
                 $_POST['author_id'],
                 $_POST['title'],
-                $_POST['content'],
+                trim($_POST['content']),
                 $image,
                 $_POST['status']
             );

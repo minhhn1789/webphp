@@ -5,17 +5,21 @@ use PDO;
 use PDOException;
 
 class Blogs {
+    const TABLE = 'posts';
+
     const ID = 'id';
     const AUTHOR_ID = 'author_id';
     const TITLE = 'title';
     const CONTENT = 'content';
     const IMAGE = 'image';
+
+    const STATUS = 'status';
     const STATUS_ACTIVE = 'publish';
     const STATUS_INACTIVE = 'hidden';
 
     const IMAGE_UPLOAD_PATH = '/uploads/';
 
-    const BASE_QUERY = 'SELECT * FROM posts WHERE ';
+    const BASE_QUERY = 'SELECT posts.*, users.full_name FROM posts LEFT JOIN users on users.id = posts.author_id WHERE ';
 
     private $pdo;
     private $id;
@@ -25,6 +29,8 @@ class Blogs {
     private $image;
     private $image_path;
     private $status;
+
+    private $updated_at;
 
     private $directory_file_call;
 
@@ -37,7 +43,8 @@ class Blogs {
         $image = [],
         $status = null,
         $image_path = null,
-        $directory_file_call = null
+        $directory_file_call = null,
+        $updated_at = null
     ){
         $this->pdo = $pdo;
         $this->id = $id;
@@ -48,6 +55,7 @@ class Blogs {
         $this->status = $status;
         $this->image_path = $image_path;
         $this->directory_file_call = $directory_file_call;
+        $this->updated_at = $updated_at;
     }
 
     public function getId() {
@@ -76,6 +84,10 @@ class Blogs {
 
     public function getStatus() {
         return $this->status;
+    }
+
+    public function getUpdatedAt(){
+        return $this->updated_at;
     }
 
     public function setAuthorId($author_id): Blogs
@@ -117,6 +129,12 @@ class Blogs {
     public function setDirectoryFileCall($directory): Blogs
     {
         $this->directory_file_call = $directory;
+        return $this;
+    }
+
+    public function setUpdatedAt($updatedAt): Blogs
+    {
+        $this->updated_at = $updatedAt;
         return $this;
     }
 
@@ -241,7 +259,7 @@ class Blogs {
     public static function getById($pdo, $id): Blogs
     {
         try{
-            $stmt = $pdo->prepare(self::BASE_QUERY . self::ID. " = ?");
+            $stmt = $pdo->prepare(self::BASE_QUERY . self::TABLE.".".self::ID. " = ?");
             $stmt->execute([$id]);
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if(count($result)){
@@ -254,7 +272,9 @@ class Blogs {
                         $value['content'],
                         null,
                         $value['status'],
-                        $value['image']
+                        $value['image'],
+                        null,
+                        $value['updated_at']
                     );
                 }
             }
