@@ -1,6 +1,4 @@
 <?php
-?>
-<?php
 ini_set('display_errors', '1');
 
 include_once "../../model/database.php";
@@ -11,8 +9,10 @@ use model\Blogs;
 
 $author_id = '';
 $username = 'User';
+$status = '';
+$title = '';
+$content = '';
 $error = 'Please Login!';
-$results = [];
 if (isset($_GET['clear_mess'])){
     $_SESSION['error_message'] = '';
     $_SESSION['message'] = '';
@@ -25,19 +25,13 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
         if($_SESSION['login']) {
             $author_id = $_SESSION['user_id'];
             $username = $_SESSION['name'];
-            $pdo = new Database();
-            $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $posts = new Blogs($pdo);
-            $results = $posts->filterByAttributes([[
-                Blogs::AUTHOR_ID,
-                "=",
-                "'".$_SESSION['user_id']."'",
-                null
-            ]]);
+            $title = $_SESSION['title'] ?? '';
+            $content = $_SESSION['content'] ?? '';
+            $status = $_SESSION['status'] ?? '';
+            $error = $_SESSION['error_message'] ?? '';
         }
     } catch (Exception $e) {
-        $error = 'Can not get post information: '.  $e->getMessage();
+        $error = 'Something wrong when load: '.  $e->getMessage();
     }
 }
 ?>
@@ -92,7 +86,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
                                 <a class='dropbtn'> Welcome ".$username. "</a>
                                 <div class='dropdown-content'>
                                     <a class='dropdown_item-1' href='../user/detail.php?id=".$author_id."'>Account</a>
-                                    <a class='dropdown_item-2' href='../posts/create.php'>Create Posts</a>
+                                    <a class='dropdown_item-2' href='../posts/list.php'>Posts</a>
                                     <a class='dropdown_item-3' href='../logout.php'>Logout</a>
                                 </div>
                             </li>";
@@ -108,12 +102,42 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
 </nav>
 
 <!-- Page Header -->
+<!-- Set your background image for this header on the line below. -->
+<div class="popup">
+    <div class="popuptext" id="popupContent">
+        <div id="myPopup"><h1>Error message</h1><a href="create.php?clear_mess=true">x</a></div>
+        <div>
+            <?php
+            if(is_array($error)){
+                foreach ($error as $err) {
+                    echo "<li>".$err."</li>";
+                }
+            }else{
+                echo "<p>".$error."</p>";
+            }
+            ?>
+        </div>
+    </div>
+</div>
+
+<div class="popup">
+    <div class="popuptextSuccess" id="popupContentSuccess">
+        <div id="myPopupSuccess"><h1>Message</h1><a href="create.php?clear_mess=true">x</a></div>
+        <div>
+            <?php
+            if(isset($_SESSION['message'])){
+                echo "<p>".$_SESSION['message']."</p>";
+            }
+            ?>
+        </div>
+    </div>
+</div>
 <header class="intro-header">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="page-heading">
-                    <h1>List Post</h1>
+                    <h1>Create New Post</h1>
                     <hr class="small">
                 </div>
             </div>
@@ -124,34 +148,49 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
 <!-- Main Content -->
 <div class="container">
     <div class="row">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th scope="col" style="width: 5%">ID</th>
-                <th scope="col" style="width: 50%">Title</th>
-                <th scope="col" style="width: 20%">Created At</th>
-                <th scope="col" style="width: 20%">Updated At</th>
-                <th scope="col" style="width: 5%"></th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php
-            if(!empty($results)){
-                foreach ($results as $result){
-                    echo "
-                     <tr>
-                        <th class='posts_list'>".$result['id']."</th>
-                        <th class='posts_list'><a href='detail.php?id=".$result['id']."'>".$result['title']."</a></th>
-                        <th class='posts_list'>".$result['created_at']."</th>
-                        <th class='posts_list'>".$result['updated_at']."</th>
-                        <th class='posts_list'><a href='detail.php?id=".$result['id']."'>View</a></th>
-                    </tr>
-                    ";
-                }
-            }
-            ?>
-            </tbody>
-        </table>
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <form action="../../controller/post/create.php" method="post" id="create_post" enctype="multipart/form-data">
+                <input type="hidden" value="<?= $author_id ?>" id="author_id" name="author_id">
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-with-value controls">
+                        <label for="title">Title</label>
+                        <input value="<?= $title ?>" type="text" class="form-control" placeholder="Title" id="title" name="title" required>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="content">Content</label>
+                        <textarea class="form-control" id="content" name="content" rows="10" required><?= htmlspecialchars($content); ?>
+                        </textarea>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <div class="preview">
+                            <img id="img_preview" src="" alt=""/>
+                            <label for="image_upload">Upload Image</label>
+                            <input accept="image/*" type="file" id="image_upload" name="image_upload" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="status">Status</label>
+                        <select name="status" id="status" class="form-control" required>
+                            <option value="">--Please choose an option--</option>
+                            <option value="<?= Blogs::STATUS_ACTIVE ?>">Publish</option>
+                            <option value="<?= Blogs::STATUS_INACTIVE ?>">Hidden</option>
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="form-group col-xs-12">
+                        <button id="save_form_button" type="submit" class="btn btn-default" form="create_post" value="update" role="button">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -202,7 +241,51 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
 <!-- Theme JavaScript -->
 <script src="../resource/js/clean-blog.min.js"></script>
 
+<script>
+    const input = document.getElementById('image_upload');
+    const image = document.getElementById('img_preview');
+
+    input.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+            image.src = URL.createObjectURL(e.target.files[0]);
+        }
+    });
+    const temp = value = "<?= $status ?? '' ?>" ;
+    const mySelect = document.getElementById('status');
+    if (temp !== null){
+        for (let i in mySelect) {
+            if (mySelect[i].value === temp) {
+                mySelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    const error =  "<?php
+        if(is_array($error)) {
+            echo !empty($error) ? 1 : 0;
+        }else{
+            echo $error ? 1 : 0;
+        }
+        ?>" ;
+
+    const mess =  "<?= $message ? 1 : 0 ?>" ;
+    if (mess === "1"){
+        const popup = document.getElementById("popupContentSuccess");
+        popup.style.visibility = "visible";
+    }
+    if (error === "1"){
+        const popup = document.getElementById("popupContent");
+        popup.style.visibility = "visible";
+    }
+
+    const login = <?= isset($_SESSION['login']) ? 1 : 0?>;
+    if(login === 0) {
+        const saveButton = document.getElementById("save_form_button");
+        saveButton.disabled = true;
+    }
+</script>
+
 </body>
 
 </html>
-

@@ -13,6 +13,8 @@ class Blogs {
     const STATUS_ACTIVE = 'publish';
     const STATUS_INACTIVE = 'hidden';
 
+    const IMAGE_UPLOAD_PATH = '/uploads/';
+
     const BASE_QUERY = 'SELECT * FROM posts WHERE ';
 
     private $pdo;
@@ -21,7 +23,10 @@ class Blogs {
     private $title;
     private $content;
     private $image;
+    private $image_path;
     private $status;
+
+    private $directory_file_call;
 
     public function __construct(
         $pdo,
@@ -29,8 +34,10 @@ class Blogs {
         $author_id = null,
         $title = null,
         $content = null,
-        $image = null,
-        $status = null
+        $image = [],
+        $status = null,
+        $image_path = null,
+        $directory_file_call = null
     ){
         $this->pdo = $pdo;
         $this->id = $id;
@@ -39,6 +46,8 @@ class Blogs {
         $this->content = $content;
         $this->image = $image;
         $this->status = $status;
+        $this->image_path = $image_path;
+        $this->directory_file_call = $directory_file_call;
     }
 
     public function getId() {
@@ -59,6 +68,10 @@ class Blogs {
 
     public function getImage() {
         return $this->image;
+    }
+
+    public function getImagePath() {
+        return $this->image_path;
     }
 
     public function getStatus() {
@@ -89,9 +102,21 @@ class Blogs {
         return $this;
     }
 
+    public function setImagePath($image_path): Blogs
+    {
+        $this->image_path = $image_path;
+        return $this;
+    }
+
     public function setStatus($status): Blogs
     {
         $this->status = $status;
+        return $this;
+    }
+
+    public function setDirectoryFileCall($directory): Blogs
+    {
+        $this->directory_file_call = $directory;
         return $this;
     }
 
@@ -99,12 +124,52 @@ class Blogs {
     /**
      * @throws exception
      */
-    public static function create($pdo, $id, $author_id, $title, $content, $image, $status): Blogs
+    public static function create($pdo, $author_id, $title, $content, $image, $status): Blogs
     {
-        $blog = new self($pdo, $id, $author_id, $title, $content, $image, $status);
+        $blog = new self($pdo, null, $author_id, $title, $content, $image, $status, null, dirname(__DIR__));
+        if(!empty($blog->image)){
+            $blog->_imageUpload();
+        }
         $blog->save();
         $blog->id = $blog->pdo->lastInsertId();
         return $blog;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function _imageUpload(): void
+    {
+        try {
+            if(!empty($this->image)) {
+                $file_path = $this->directory_file_call . self::IMAGE_UPLOAD_PATH . basename($this->image['name']);
+                $imageFileType = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+                if (!getimagesize($this->image["tmp_name"])) {
+                    throw new exception("File is not an image.");
+                }
+
+                if (file_exists($file_path)) {
+                    throw new exception("Sorry, file already exists.");
+                }
+
+                if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+                    && $imageFileType != "gif") {
+                    throw new exception("Sorry, only JPG, JPEG, PNG & GIF files are allowed.");
+                }
+
+                if ($this->image["size"] > 500000) {
+                    throw new exception("Sorry, your file is too large.");
+                }
+
+                if (move_uploaded_file($this->image["tmp_name"], $file_path)) {
+                    $this->setImagePath(basename($this->image['name']));
+                } else {
+                    throw new exception("Sorry, there was an error uploading your file.");
+                }
+            }
+        }catch (Exception $e){
+            throw new exception("Upload image error: ".$e);
+        }
     }
 
     /**
@@ -127,36 +192,25 @@ class Blogs {
             $stmt->bindParam(':author_id', $this->author_id, PDO::PARAM_INT);
             $stmt->bindParam(':title', $this->title, PDO::PARAM_STR);
             $stmt->bindParam(':content', $this->content, PDO::PARAM_STR);
-            $stmt->bindParam(':image', $this->image, PDO::PARAM_STR);
+            $stmt->bindParam(':image', $this->image_path, PDO::PARAM_STR);
             $stmt->bindParam(':status', $this->status, PDO::PARAM_STR);
             $stmt->execute();
             $this->pdo->commit();
         } catch (PDOException $e) {
-            throw new exception('Cannot save blog.');
+            throw new exception('Cannot save post.');
         }
     }
 
     /**
-     * @throws exception
+     * @throws Exception
      */
-    public function edit($author_id = null, $title = null, $content = null, $image = null, $status = null){
-        if($author_id !== null){
-            $this->author_id = $author_id;
+    public function update(): Blogs
+    {
+        if(!empty($this->image)){
+            $this->_imageUpload();
         }
-        if($title !== null){
-            $this->title = $title;
-        }
-        if($content !== null){
-            $this->content = $content;
-        }
-        if($image !== null){
-            $this->image = $image;
-        }
-        if($status !== null){
-            $this->status = $status;
-        }
-
         $this->save();
+        return $this;
     }
 
     /**
@@ -169,13 +223,14 @@ class Blogs {
                 $stmt = $this->pdo->prepare("DELETE FROM posts WHERE id = ?");
                 $stmt->execute([$this->id]);
             } catch (PDOException $e) {
-                throw new exception('Cannot delete blog.');
+                throw new exception('Cannot delete post');
             }
         }
         $this->id = null;
         $this->author_id = null;
         $this->title = null;
         $this->content = null;
+        $this->image_path = null;
         $this->image = null;
         $this->status = null;
     }
@@ -183,14 +238,30 @@ class Blogs {
     /**
      * @throws Exception
      */
-    public function getById() {
+    public static function getById($pdo, $id): Blogs
+    {
         try{
-            $stmt = $this->pdo->prepare(self::BASE_QUERY . self::ID. " = ?");
-            $stmt->execute([$this->id]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $pdo->prepare(self::BASE_QUERY . self::ID. " = ?");
+            $stmt->execute([$id]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if(count($result)){
+                foreach ($result as $value){
+                    return new Blogs(
+                        $pdo,
+                        $value['id'],
+                        $value['author_id'],
+                        $value['title'],
+                        $value['content'],
+                        null,
+                        $value['status'],
+                        $value['image']
+                    );
+                }
+            }
+            return new Blogs($pdo);
 
         } catch (PDOException $e) {
-            throw new exception('Cannot get blog with id: '.$this->id);
+            throw new exception('Cannot get post with id: '.$id);
         }
     }
 

@@ -91,7 +91,7 @@ if (isset($_GET['id']) && isset($_SESSION['login'])){
                 if (isset($_SESSION['login']) && $id) {
                     echo "                
                             <li class='dropdown'>
-                                <a class='dropbtn'>".$username. "</a>
+                                <a class='dropbtn'> Welcome ".$username. "</a>
                                 <div class='dropdown-content'>
                                     <a class='dropdown_item-1' href='detail.php?id=".$id."'>Account</a>
                                     <a class='dropdown_item-2' href='../posts/list.php'>Posts</a>
@@ -168,7 +168,7 @@ if (isset($_GET['id']) && isset($_SESSION['login'])){
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <label for="sex">Gender</label>
-                        <select name="sex" id="sex" class="form-control">
+                        <select name="sex" id="sex" class="form-control" required>
                             <option value="">--Please choose an option--</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
@@ -226,7 +226,7 @@ if (isset($_GET['id']) && isset($_SESSION['login'])){
                 <br>
                 <div class="row">
                     <div class="form-group col-xs-12">
-                        <button type="submit" class="btn btn-default" form="update_user" value="update" role="button">Save</button>
+                        <button id="save_form_button" type="submit" class="btn btn-default" form="update_user" value="update" role="button">Save</button>
                     </div>
                 </div>
             </form>
@@ -309,6 +309,12 @@ if (isset($_GET['id']) && isset($_SESSION['login'])){
     if (error === "1"){
         const popup = document.getElementById("popupContent");
         popup.style.visibility = "visible";
+    }
+
+    const login = <?= isset($_SESSION['login']) ? 1 : 0?>;
+    if(login === 0) {
+        const saveButton = document.getElementById("save_form_button");
+        saveButton.disabled = true;
     }
 </script>
 

@@ -537,3 +537,23 @@ body {
   text-align: center;
 }
 
+/*------Upload image-------*/
+
+.preview {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+img {
+  width: 40%;
+  object-fit: cover;
+}
+
+.posts_list{
+  font-weight: lighter;
+}
+
+.posts_list a{
+  cursor: pointer;
+}
