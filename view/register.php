@@ -1,6 +1,11 @@
 <?php
 session_start();
 ini_set('display_errors', '1');
+if(isset($_GET['clear_mess'])){
+    if($_GET['clear_mess']){
+        unset($_SESSION['error_message']);
+    }
+}
 ?>
 <html>
 	<head><link href="resource/css/style.css" rel="stylesheet" type="text/css"></head>
@@ -11,7 +16,7 @@ ini_set('display_errors', '1');
 	<body>
         <div class="popup">
             <div class="popuptext" id="popupContent">
-                 <div id="myPopup"><h1>Error message</h1><a onclick="close_error()">x</a></div>
+                 <div id="myPopup"><h1>Error message</h1><a href="register.php?clear_mess=true">x</a></div>
                  <div>
                      <ol>
                          <?php
@@ -84,7 +89,7 @@ ini_set('display_errors', '1');
 				  </button>
 
                 <div class="login_back">
-                    <a href="login.php?clear_form=true">
+                    <a href="login.php?clear_mess=true">
                         Back to Login
                         <i class="fa fa-arrow-right" aria-hidden="true"></i>
                     </a>

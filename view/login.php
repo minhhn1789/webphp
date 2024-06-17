@@ -1,8 +1,8 @@
 <?php
 session_start();
 ini_set('display_errors', '1');
-if(isset($_GET['clear_form'])){
-    if($_GET['clear_form']){
+if(isset($_GET['clear_mess'])){
+    if($_GET['clear_mess']){
         $_SESSION = [];
     }
 }
@@ -16,7 +16,7 @@ if(isset($_GET['clear_form'])){
 	<body>
         <div class="popup">
             <div class="message" id="popupContent">
-                <div id="myPopup"><h1>Message</h1><a onclick="close_popup()">x</a></div>
+                <div id="myPopup"><h1>Message</h1><a href="login.php?clear_mess=true">x</a></div>
                 <div>
                         <?php
                         if(isset($_SESSION['register'])){
@@ -26,7 +26,7 @@ if(isset($_GET['clear_form'])){
                 </div>
             </div>
             <div class="message_error" id="popupContentError">
-                <div id="errorPopup"><h1>Message Error</h1><a onclick="close_popup_error()">x</a></div>
+                <div id="errorPopup"><h1>Message Error</h1><a href="login.php?clear_mess=true">x</a></div>
                 <div>
                     <?php
                     if(isset($_SESSION['error_mess'])){
@@ -83,16 +83,6 @@ if(isset($_GET['clear_form'])){
             if (mess_err === "1"){
                 const popup = document.getElementById("popupContentError");
                 popup.style.visibility = "visible";
-            }
-
-            function close_popup(){
-                const popup = document.getElementById("popupContent");
-                popup.style.visibility = "hidden";
-            }
-
-            function close_popup_error(){
-                const popup = document.getElementById("popupContentError");
-                popup.style.visibility = "hidden";
             }
         </script>
 	</body>

@@ -93,7 +93,7 @@ if (isset($_GET['author_id'])){
                                 <a class='dropbtn'> Welcome ".$username. "</a>
                                 <div class='dropdown-content'>
                                     <a class='dropdown_item-1' href='../user/detail.php?id=".$user_id."'>Account</a>
-                                    <a class='dropdown_item-2' href='../posts/create.php'>Create Posts</a>
+                                    <a class='dropdown_item-2' href='list.php'>Posts</a>
                                     <a class='dropdown_item-3' href='../logout.php'>Logout</a>
                                 </div>
                             </li>";

@@ -3,10 +3,10 @@ ini_set('display_errors', '1');
 session_start();
 $_SESSION = [];
 
-include "../../model/database.php";
-include "../../model/check.php";
-include "../../model/accounts.php";
-include "../../model/users.php";
+include_once "../../model/database.php";
+include_once "../../model/check.php";
+include_once "../../model/accounts.php";
+include_once "../../model/users.php";
 
 use model\Database;
 use model\Check;

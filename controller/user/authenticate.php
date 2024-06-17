@@ -31,13 +31,13 @@ try{
     }else{
         $_SESSION['error_mess'] =  'Incorrect username!';
     }
-    $_SESSION= $_POST;
-    header('Location: ../view/login.php');
+    $_SESSION = array_merge($_SESSION, $_POST);
+    header('Location: ../../view/login.php');
     exit;
 } catch (Exception $e){
     $_SESSION = $_POST;
     $_SESSION['error_mess'] =  'Cannot login!';
-    header('Location: ../view/login.php');
+    header('Location: ../../view/login.php');
     exit;
 }
 

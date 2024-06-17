@@ -12,10 +12,8 @@ $username = 'User';
 $error = 'Please Login!';
 $results = [];
 if (isset($_GET['clear_mess'])){
-    $_SESSION['error_message'] = '';
-    $_SESSION['message'] = '';
+    unset($_SESSION['message']);
 }
-$message = $_SESSION['message'] ?? '';
 
 
 if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
@@ -105,6 +103,19 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
     <!-- /.container -->
 </nav>
 
+<div class="popup">
+    <div class="popuptextSuccess" id="popupContentSuccess">
+        <div id="myPopupSuccess"><h1>Message</h1><a href="list.php?clear_mess=true">x</a></div>
+        <div>
+            <?php
+            if(isset($_SESSION['message'])){
+                echo "<p>".$_SESSION['message']."</p>";
+            }
+            ?>
+        </div>
+    </div>
+</div>
+
 <!-- Page Header -->
 <header class="intro-header">
     <div class="container">
@@ -126,10 +137,10 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
             <thead>
             <tr>
                 <th scope="col" style="width: 5%">ID</th>
-                <th scope="col" style="width: 50%">Title</th>
+                <th scope="col" style="width: 35%">Title</th>
                 <th scope="col" style="width: 20%">Created At</th>
                 <th scope="col" style="width: 20%">Updated At</th>
-                <th scope="col" style="width: 5%"></th>
+                <th scope="col" style="width: 20%">Action</th>
             </tr>
             </thead>
             <tbody>
@@ -142,7 +153,13 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
                         <th class='posts_list'><a href='detail.php?id=".$result['id']."'>".$result['title']."</a></th>
                         <th class='posts_list'>".$result['created_at']."</th>
                         <th class='posts_list'>".$result['updated_at']."</th>
-                        <th class='posts_list'><a href='detail.php?id=".$result['id']."'>View</a></th>
+                        <th class='posts_list'>
+                        <span>
+                        <a href='post.php?id=".$result['id']."'>View</a> | 
+                        <a href='detail.php?id=".$result['id']."'>Edit</a> | 
+                        <a href='../../controller/post/delete.php?id=".$result['id']."'>Delete</a>
+                        </span>
+                        </th>
                     </tr>
                     ";
                 }
@@ -199,6 +216,14 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
 
 <!-- Theme JavaScript -->
 <script src="../resource/js/clean-blog.min.js"></script>
+
+<script>
+    const mess =  "<?= isset($_SESSION['message']) ? 1 : 0 ?>" ;
+    if (mess === "1"){
+        const popup = document.getElementById("popupContentSuccess");
+        popup.style.visibility = "visible";
+    }
+</script>
 
 </body>
 

@@ -400,6 +400,8 @@ body.loggedin {
 #myPopup a{
     margin-left: auto;
     padding-right: 5px;
+    text-decoration: none;
+    color: #ffffff;
 }
 
 #errorPopup {
@@ -412,4 +414,6 @@ body.loggedin {
 #errorPopup a{
     margin-left: auto;
     padding-right: 5px;
+    text-decoration: none;
+    color: #ffffff;
 }
