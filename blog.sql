@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 04, 2024 at 11:16 AM
+-- Generation Time: Jun 17, 2024 at 05:22 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -30,10 +30,18 @@ SET time_zone = "+00:00";
 CREATE TABLE `accounts` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `user_name` varchar(100) NOT NULL,
+  `username` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `status` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `accounts`
+--
+
+INSERT INTO `accounts` (`id`, `user_id`, `username`, `password`, `status`) VALUES
+(8, 24, 'admin', '$2y$10$USd0VPeUXZN2F4Bf9VYXpOonvWgWt0J/dOC/FggQ9CAjm3RZPcnCu', 0),
+(9, 25, 'admin123', '$2y$10$CKUT7Wdu.DxoLtphYDwxEOchWcJFvQhBM29XPneVh.ku2RpFha4QK', 0);
 
 -- --------------------------------------------------------
 
@@ -51,6 +59,13 @@ CREATE TABLE `posts` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `posts`
+--
+
+INSERT INTO `posts` (`id`, `author_id`, `title`, `content`, `image`, `status`, `created_at`, `updated_at`) VALUES
+(1, 24, 'test', 'test asd asd                                                ', NULL, 'publish', '2024-06-10 07:29:01', '2024-06-10 09:36:00');
 
 -- --------------------------------------------------------
 
@@ -71,6 +86,14 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `full_name`, `address`, `age`, `sex`, `phone_number`, `email`, `role`, `status`, `created_at`, `updated_at`) VALUES
+(24, 'ha hoang', '102 Trường Chinh, Phương Đình, Đống Đa, Hà Nội, Việt Nam', 22, 'female', 1696357392, 'hahoanglc97@gmail.com', 'user', 'active', '2024-06-06 08:22:43', '2024-06-07 11:55:16'),
+(25, 'ha hoang', '789 My Dinh, Ha Noi', 22, 'male', 836370836, 'hahoanglc97+123@gmail.com', 'user', 'active', '2024-06-06 08:30:32', '2024-06-06 08:30:32');
 
 --
 -- Indexes for dumped tables
@@ -104,19 +127,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `accounts`
 --
 ALTER TABLE `accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- Constraints for dumped tables
