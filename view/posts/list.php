@@ -11,7 +11,7 @@ $author_id = '';
 $username = 'User';
 $error = 'Please Login!';
 $results = [];
-$default_number_posts = 10;
+$default_number_posts = 5;
 $total_page = 1;
 
 $page = $_GET['page'] ?? 1;
@@ -156,6 +156,7 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
             if($page > 1){
                 echo '<li class="next previous"><a href="list.php?page=' . ($page - 1) . '">&larr; Previous</a></li>';
             }
+            echo '<li>'.$page.'/'.$total_page.'</li>';
             if ($total_page > $page){
                 echo '<li class="next"><a href="list.php?page=' . ($page + 1) . '">Next &rarr;</a> </li>';
             }

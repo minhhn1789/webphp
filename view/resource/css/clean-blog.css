@@ -557,3 +557,26 @@ img {
 .posts_list a{
   cursor: pointer;
 }
+
+
+/*--------filter form------*/
+.filter-form {
+  margin-bottom: 30px;
+}
+
+.filter_value{
+  display: inline-flex;
+  align-items: center;
+}
+
+.filter_button{
+  display: inline-flex;
+  margin: 1em 0 1em 0;
+  justify-content: center;
+  align-items: center;
+}
+
+.filter_button input[type=submit]{
+  width: 100px;
+  margin-right: 1em;
+}

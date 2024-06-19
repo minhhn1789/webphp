@@ -9,7 +9,6 @@ use model\Blogs;
 
 $admin_id = '';
 $username = 'Admin';
-$error = 'Please Login!';
 $results = [];
 
 $default_number_posts = 5;
@@ -19,9 +18,12 @@ $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
 
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['admin']['message']);
+    unset($_SESSION['admin']['error_message']);
 }
 
+if (isset($_GET['clear_filter'])){
+    unset($_SESSION['admin']['filter_value']['posts']);
+}
 
 if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin']) && isset($_SESSION['admin']['is_admin'])){
     try {
@@ -32,17 +34,21 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $posts = new Blogs($pdo);
-            $results = $posts->filterByAttributes([[
-                Blogs::AUTHOR_ID,
-                "is",
-                "NOT NULL",
-                null
-            ]]);
+            if(isset($_GET['filter'])){
+                $results = $posts->filterByAttributes($_SESSION['admin']['filter']['posts']);
+            }else {
+                $results = $posts->filterByAttributes([[
+                    Blogs::AUTHOR_ID,
+                    "is",
+                    "NOT NULL",
+                    null
+                ]]);
+            }
             $total_page = floor(count($results) / $default_number_posts);
             $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
         }
     } catch (Exception $e) {
-        $error = 'Can not get post information: '.  $e->getMessage();
+        $_SESSION['admin']['error_message'] = 'Can not filter post cause: '.  $e->getMessage();
     }
 }
 ?>
@@ -83,12 +89,12 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
 <?php include_once 'header.php'?>
 
 <div class="popup">
-    <div class="popuptextSuccess" id="popupContentSuccess">
-        <div id="myPopupSuccess"><h1>Message</h1><a href="home.php?clear_mess=true">x</a></div>
+    <div class="popuptext" id="popupContent">
+        <div id="myPopup"><h1>Error Message</h1><a href="home.php?clear_mess=true">x</a></div>
         <div>
             <?php
-            if(isset($_SESSION['admin']['message'])){
-                echo "<p>".$_SESSION['admin']['message']."</p>";
+            if(isset($_SESSION['admin']['error_message'])){
+                echo "<p>".$_SESSION['admin']['error_message']."</p>";
             }
             ?>
         </div>
@@ -111,15 +117,58 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
 
 <!-- Main Content -->
 <div class="container">
+    <div class="filter_form">
+        <form action="/blog/controller/admin/filter.php" method="post">
+            <div class="filter_value">
+                <input type="hidden" value="posts" name="type">
+                <div>
+                    <label for="post_id">Post IDs:</label>
+                    <input type="text" value="<?= $_SESSION['admin']['filter_value']['posts']['post_id'] ?? '' ?>" id="post_id" name="post_id">
+                </div>
+                <div>
+                    <label for="title">Title:</label>
+                    <input type="text" value="<?= $_SESSION['admin']['filter_value']['posts']['title'] ?? '' ?>" id="title" name="title">
+                </div>
+                <div>
+                    <label for="author">Author:</label>
+                    <input type="text" value="<?= $_SESSION['admin']['filter_value']['posts']['author'] ?? '' ?>" id="author" name="author" >
+                </div>
+                <div>
+                    <label for="status">Status:</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">--Please choose an option--</option>
+                        <option value="<?= Blogs::STATUS_ACTIVE ?>">Publish</option>
+                        <option value="<?= Blogs::STATUS_INACTIVE ?>">Hidden</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter_button">
+                <div>
+                    <input type="submit" value="Filter">
+                </div>
+                <?php
+                if(isset($_GET['filter'])){
+                    echo '
+                        <div class="clear_filter">
+                            <a href="home.php?clear_filter=true">Clear Filter</a>
+                        </div>
+                        ';
+                }
+                ?>
+            </div>
+        </form>
+    </div>
+    <hr>
     <div class="row">
         <table class="table table-striped">
             <thead>
             <tr>
                 <th scope="col" style="width: 5%">ID</th>
-                <th scope="col" style="width: 30%">Title</th>
+                <th scope="col" style="width: 20%">Title</th>
                 <th scope="col" style="width: 15%">Created At</th>
                 <th scope="col" style="width: 15%">Updated At</th>
-                <th scope="col" style="width: 15%">Author</th>
+                <th scope="col" style="width: 7%">Author</th>
+                <th scope="col" style="width: 8%">Status</th>
                 <th scope="col" style="width: 20%">Action</th>
             </tr>
             </thead>
@@ -137,7 +186,8 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
                             <th class='posts_list'><a href='posts/detail.php?id=" . $result['id'] . "'>" . $result['title'] . "</a></th>
                             <th class='posts_list'>" . $result['created_at'] . "</th>
                             <th class='posts_list'>" . $result['updated_at'] . "</th>
-                            <th class='posts_list'>" . $result['full_name'] . "</th>
+                            <th class='posts_list'><a href='posts/list_by_author.php?author_id=" . $result['author_id'] . "'>" . $result['full_name'] . "</a></th>
+                            <th class='posts_list'>" . $result['status'] . "</th>
                             <th class='posts_list'>
                             <span>
                             <a href='posts/post.php?id=" . $result['id'] . "'>View</a> | 
@@ -155,11 +205,22 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
         </table>
         <ul class="pager">
             <?php
-            if($page > 1){
-                echo '<li class="next previous"><a href="home.php?page=' . ($page - 1) . '">&larr; Previous</a></li>';
-            }
-            if ($total_page > $page){
-                echo '<li class="next"><a href="home.php?page=' . ($page + 1) . '">Next &rarr;</a> </li>';
+            if(isset($_GET['filter'])){
+                if($page > 1){
+                    echo '<li class="next previous"><a href="home.php?filter=true&page=' . ($page - 1) . '">&larr; Previous</a></li>';
+                }
+                echo '<li>'.$page.'/'.$total_page.'</li>';
+                if ($total_page > $page){
+                    echo '<li class="next"><a href="home.php?filter=true&page=' . ($page + 1) . '">Next &rarr;</a> </li>';
+                }
+            }else{
+                if($page > 1){
+                    echo '<li class="next previous"><a href="home.php?page=' . ($page - 1) . '">&larr; Previous</a></li>';
+                }
+                echo '<li>'.$page.'/'.$total_page.'</li>';
+                if ($total_page > $page){
+                    echo '<li class="next"><a href="home.php?page=' . ($page + 1) . '">Next &rarr;</a> </li>';
+                }
             }
             ?>
         </ul>
@@ -214,10 +275,21 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
 <script src="../resource/js/clean-blog.min.js"></script>
 
 <script>
-    const mess =  "<?= isset($_SESSION['admin']['message']) ? 1 : 0 ?>" ;
+    const mess =  "<?= isset($_SESSION['admin']['error_message']) ? 1 : 0 ?>" ;
     if (mess === "1"){
-        const popup = document.getElementById("popupContentSuccess");
+        const popup = document.getElementById("popupContent");
         popup.style.visibility = "visible";
+    }
+
+    const temp = value = "<?= $_SESSION['admin']['filter_value']['posts']['status'] ?? '' ?>" ;
+    const mySelect = document.getElementById('status');
+    if (temp !== null){
+        for (let i in mySelect) {
+            if (mySelect[i].value === temp) {
+                mySelect.selectedIndex = i;
+                break;
+            }
+        }
     }
 </script>
 

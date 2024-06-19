@@ -12,7 +12,7 @@ $username = 'Admin';
 $error = '';
 $results = [];
 
-$default_number_posts = 10;
+$default_number_posts = 5;
 $total_page = 1;
 
 $page = $_GET['page'] ?? 1;
@@ -20,9 +20,12 @@ $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
 
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['admin']['users']['message']);
+    unset($_SESSION['admin']['error_message']);
 }
 
+if (isset($_GET['clear_filter'])){
+    unset($_SESSION['admin']['filter_value']['users']);
+}
 
 if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin']) && isset($_SESSION['admin']['is_admin'])){
     try {
@@ -33,12 +36,16 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $users = new Users($pdo);
-            $results = $users->filterByAttributes([[
-                Users::ROLE,
-                "=",
-                "'".Users::ROLE_USER."'",
-                null
-            ]]);
+            if(isset($_GET['filter'])){
+                $results = $users->filterByAttributes($_SESSION['admin']['filter']['users']);
+            }else{
+                $results = $users->filterByAttributes([[
+                    Users::ROLE,
+                    "=",
+                    "'".Users::ROLE_USER."'",
+                    null
+                ]]);
+            }
             $total_page = floor(count($results) / $default_number_posts);
             $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
         }
@@ -125,6 +132,48 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
 
 <!-- Main Content -->
 <div class="container">
+    <div class="filter_form">
+        <form action="/blog/controller/admin/filter.php" method="post">
+            <div class="filter_value">
+                <input type="hidden" value="users" name="type">
+                <div>
+                    <label for="user_id">User IDs:</label>
+                    <input type="text" value="<?= $_SESSION['admin']['filter_value']['users']['user_id'] ?? '' ?>" id="user_id" name="user_id">
+                </div>
+                <div>
+                    <label for="name">Name:</label>
+                    <input type="text" value="<?= $_SESSION['admin']['filter_value']['users']['name'] ?? '' ?>" id="name" name="name">
+                </div>
+                <div>
+                    <label for="username">Username:</label>
+                    <input type="text" value="<?= $_SESSION['admin']['filter_value']['users']['username'] ?? '' ?>" id="username" name="username">
+                </div>
+                <div>
+                    <label for="status">Status:</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">--Please choose an option--</option>
+                        <option value="<?= Users::STATUS_ACTIVE ?>">Active</option>
+                        <option value="<?= Users::STATUS_INACTIVE ?>">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter_button">
+                <div>
+                    <input type="submit" value="Filter">
+                </div>
+                <?php
+                if(isset($_GET['filter'])){
+                    echo '
+                        <div class="clear_filter">
+                            <a href="list_users.php?clear_filter=true">Clear Filter</a>
+                        </div>
+                        ';
+                }
+                ?>
+            </div>
+        </form>
+    </div>
+    <hr>
     <div class="row">
         <table class="table table-striped">
             <thead>
@@ -170,11 +219,22 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
         </table>
         <ul class="pager">
             <?php
-            if($page > 1){
-                echo '<li class="next previous"><a href="list_users.php?page=' . ($page - 1) . '">&larr; Previous</a></li>';
-            }
-            if ($total_page > $page){
-                echo '<li class="next"><a href="list_users.php?page=' . ($page + 1) . '">Next &rarr;</a> </li>';
+            if(isset($_GET['filter'])){
+                if($page > 1){
+                    echo '<li class="next previous"><a href="list_users.php?filter=true&page=' . ($page - 1) . '">&larr; Previous</a></li>';
+                }
+                echo '<li>'.$page.'/'.$total_page.'</li>';
+                if ($total_page > $page){
+                    echo '<li class="next"><a href="list_users.php?filter=true&page=' . ($page + 1) . '">Next &rarr;</a> </li>';
+                }
+            }else{
+                if($page > 1){
+                    echo '<li class="next previous"><a href="list_users.php?page=' . ($page - 1) . '">&larr; Previous</a></li>';
+                }
+                echo '<li>'.$page.'/'.$total_page.'</li>';
+                if ($total_page > $page){
+                    echo '<li class="next"><a href="list_users.php?page=' . ($page + 1) . '">Next &rarr;</a> </li>';
+                }
             }
             ?>
         </ul>
@@ -238,6 +298,17 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
     if (error === "1"){
         const popup = document.getElementById("popupContent");
         popup.style.visibility = "visible";
+    }
+
+    const temp = value = "<?= $_SESSION['admin']['filter_value']['users']['status'] ?? '' ?>" ;
+    const mySelect = document.getElementById('status');
+    if (temp !== null){
+        for (let i in mySelect) {
+            if (mySelect[i].value === temp) {
+                mySelect.selectedIndex = i;
+                break;
+            }
+        }
     }
 </script>
 

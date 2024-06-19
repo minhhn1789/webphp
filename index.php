@@ -121,6 +121,7 @@ try {
                 if($page > 1){
                     echo '<li class="next previous"><a href="/blog/?page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
                 }
+                echo '<li>'.$page.'/'.$total_page.'</li>';
                 if ($total_page > $page){
                     echo '<li class="next"><a href="/blog/?page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
                 }

@@ -17,6 +17,7 @@ echo '
                                     <a class='dropdown_item-2' href='/blog/view/admin/list_users.php'>List Users</a>
                                     <a class='dropdown_item-2' href='/blog/view/admin/list_admin.php'>List Admin</a>
                                     <a class='dropdown_item-2' href='/blog/view/admin/posts/create.php'>Create Posts</a>
+                                    <a class='dropdown_item-2' href='/blog/view/admin/posts/list_by_author.php?author_id=".$_SESSION['admin']['admin_id']."'>My Posts</a>
                                     <a class='dropdown_item-3' href='/blog/controller/admin/logout.php'>Logout</a>
                                 </div>
                             </li>";

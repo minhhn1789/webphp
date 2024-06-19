@@ -139,6 +139,7 @@ if (isset($_GET['author_id']) && isset($_SESSION['admin']['admin_id']) && isset(
                 if($page > 1){
                     echo '<li class="next previous"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
                 }
+                echo '<li>'.$page.'/'.$total_page.'</li>';
                 if ($total_page > $page){
                     echo '<li class="next"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
                 }

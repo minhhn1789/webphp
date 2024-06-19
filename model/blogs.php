@@ -298,7 +298,8 @@ class Blogs {
         try{
             $query = self::BASE_QUERY;
             foreach($filters as $filter){
-                $query .= $filter[0] ." ". $filter[1] ." ". $filter[2] ." ". $filter[3];
+                $query .= $filter[0] ." ". $filter[1] ." ". $filter[2] ." ". $filter[3] ?? '';
+                $query .= ' ';
             }
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();

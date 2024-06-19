@@ -16,6 +16,7 @@ class Users
     const SEX = 'sex';
     const PHONE_NUMBER = 'phone_number';
     const EMAIL = 'email';
+    const STATUS = 'status';
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
 
@@ -341,6 +342,7 @@ class Users
             $query = self::BASE_QUERY;
             foreach($filters as $filter){
                 $query .= $filter[0] ." ". $filter[1] ." ". $filter[2] ." ". $filter[3] ?? '';
+                $query .= ' ';
             }
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
