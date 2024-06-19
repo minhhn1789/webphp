@@ -12,23 +12,24 @@ $username = 'User';
 $status = '';
 $title = '';
 $content = '';
-$error = 'Please Login!';
+$error = '';
+
 if (isset($_GET['clear_mess'])){
-    $_SESSION['error_message'] = '';
+    $_SESSION['user']['error_message'] = '';
     $_SESSION['message'] = '';
 }
-$message = $_SESSION['message'] ?? '';
+$message = $_SESSION['user']['message'] ?? '';
 
 
-if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
+if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
     try {
-        if($_SESSION['login']) {
-            $author_id = $_SESSION['user_id'];
-            $username = $_SESSION['name'];
-            $title = $_SESSION['title'] ?? '';
-            $content = $_SESSION['content'] ?? '';
-            $status = $_SESSION['status'] ?? '';
-            $error = $_SESSION['error_message'] ?? '';
+        if($_SESSION['user']['login']) {
+            $author_id = $_SESSION['user']['user_id'];
+            $username = $_SESSION['user']['name'];
+            $title = $_SESSION['user']['title'] ?? '';
+            $content = $_SESSION['user']['content'] ?? '';
+            $status = $_SESSION['user']['status'] ?? '';
+            $error = $_SESSION['user']['error_message'] ?? '';
         }
     } catch (Exception $e) {
         $error = 'Something wrong when load: '.  $e->getMessage();
@@ -45,7 +46,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Clean Blog - Contact</title>
+    <title>Create new post</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -69,37 +70,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
 
 <body>
 
-<!-- Navigation -->
-<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
-    <div class="container-fluid">
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="../../index.php">Home</a>
-                </li>
-                <?php
-                if (isset($_SESSION['login']) && $author_id) {
-                    echo "                
-                            <li class='dropdown'>
-                                <a class='dropbtn'> Welcome ".$username. "</a>
-                                <div class='dropdown-content'>
-                                    <a class='dropdown_item-1' href='../user/detail.php?id=".$author_id."'>Account</a>
-                                    <a class='dropdown_item-2' href='../posts/list.php'>Posts</a>
-                                    <a class='dropdown_item-3' href='../logout.php'>Logout</a>
-                                </div>
-                            </li>";
-                }else{
-                    echo "<li><a href='../login.php'>Login</a></li>";
-                }
-                ?>
-            </ul>
-        </div>
-        <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container -->
-</nav>
+<?php include_once '../header.php'?>
 
 <!-- Page Header -->
 <!-- Set your background image for this header on the line below. -->
@@ -125,8 +96,8 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
         <div id="myPopupSuccess"><h1>Message</h1><a href="create.php?clear_mess=true">x</a></div>
         <div>
             <?php
-            if(isset($_SESSION['message'])){
-                echo "<p>".$_SESSION['message']."</p>";
+            if(isset($_SESSION['user']['message'])){
+                echo "<p>".$_SESSION['user']['message']."</p>";
             }
             ?>
         </div>
@@ -279,7 +250,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['login'])){
         popup.style.visibility = "visible";
     }
 
-    const login = <?= isset($_SESSION['login']) ? 1 : 0?>;
+    const login = <?= isset($_SESSION['user']['login']) ? 1 : 0?>;
     if(login === 0) {
         const saveButton = document.getElementById("save_form_button");
         saveButton.disabled = true;

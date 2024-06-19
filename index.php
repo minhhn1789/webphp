@@ -1,13 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<?php session_start();
+<?php
+session_start();
 include_once "model/database.php";
 include_once "model/blogs.php";
 session_start();
 use model\Database;
 use model\Blogs;
 $results = [];
+$default_number_posts = 5;
+$total_page = 1;
 try {
+    $page = $_GET['page'] ?? 1;
+    $start = ($page - 1) * $default_number_posts;
+    $end = $page * $default_number_posts;
+
     $pdo = new Database();
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -18,14 +23,16 @@ try {
         "'".Blogs::STATUS_ACTIVE."'",
         null
     ]]);
+    $total_page = floor(count($results) / $default_number_posts);
+    $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
 } catch (Exception $e) {
     $error = 'Can not get post information: '.  $e->getMessage();
 }
 
 ?>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -56,36 +63,7 @@ try {
 
 <body>
 
-<!-- Navigation -->
-<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
-    <div class="container-fluid">
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="/blog">Home</a>
-                </li>
-                <?php
-                    if (isset($_SESSION['login'])) {
-                        echo "                
-                            <li class='dropdown'>
-                                <a class='dropbtn'>Welcome ".$_SESSION['name']. "</a>
-                                <div class='dropdown-content'>
-                                    <a class='dropdown_item-1' href='view/user/detail.php?id=".$_SESSION['user_id']."'>Account</a>
-                                    <a class='dropdown_item-2' href='view/posts/list.php'>Posts</a>
-                                    <a class='dropdown_item-3' href='view/logout.php'>Logout</a>
-                                </div>
-                            </li>";
-                    }else{
-                        echo "<li><a href='view/login.php'>Login</a></li>";
-                    }
-                ?>
-            </ul>
-        </div>
-        <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container -->
-</nav>
+<?php include_once 'view/header.php'?>
 
 <!-- Page Header -->
 <!-- Set your background image for this header on the line below. -->
@@ -109,35 +87,44 @@ try {
         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
             <?php
             if(!empty($results)){
-                foreach ($results as $result){
-                    if(strlen($result['content']) > 50){
-                        $shortDes = substr($result['content'],0,50)."...";
-                    }else{
-                        $shortDes = $result['content'];
+                foreach ($results as $key => $result){
+                    if($key > $end){
+                        break;
                     }
-                    echo "
+                    if( $start <= $key && $key < $end) {
+                        if (strlen($result['content']) > 50) {
+                            $shortDes = substr($result['content'], 0, 50) . "...";
+                        } else {
+                            $shortDes = $result['content'];
+                        }
+                        echo "
                         <div class='post-preview'>
-                            <a href='view/posts/post.php?id=".$result['id']."'>
+                            <a href='view/posts/post.php?id=" . $result['id'] . "'>
                                 <h2 class='post-title'>
-                                    ".$result['title']."
+                                    " . $result['title'] . "
                                 </h2>
                                 <h3 class='post-subtitle'>
-                                    ".$shortDes."
+                                    " . $shortDes . "
                                 </h3>
                             </a>
-                            <p class='post-meta'>Posted by <a href='view/posts/list_by_author.php?author_id=".$result['author_id']."'>".$result['full_name']."</a> at ".$result['updated_at']."</p>
+                            <p class='post-meta'>Posted by <a href='view/posts/list_by_author.php?author_id=" . $result['author_id'] . "'>" . $result['full_name'] . "</a> at " . $result['updated_at'] . "</p>
                                 </div>
-                        <hr>
-                    ";
+                        <hr> ";
+                    }
                 }
             }
             ?>
 
             <!-- Pager -->
             <ul class="pager">
-                <li class="next">
-                    <a href="#">Older Posts &rarr;</a>
-                </li>
+                <?php
+                if($page > 1){
+                    echo '<li class="next previous"><a href="/blog/?page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
+                }
+                if ($total_page > $page){
+                    echo '<li class="next"><a href="/blog/?page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
+                }
+                ?>
             </ul>
         </div>
     </div>

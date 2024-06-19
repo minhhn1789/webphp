@@ -3,12 +3,13 @@ session_start();
 ini_set('display_errors', '1');
 if(isset($_GET['clear_mess'])){
     if($_GET['clear_mess']){
-        unset($_SESSION['error_message']);
+        unset($_SESSION['user']['error_message']);
     }
 }
 ?>
-<html>
-	<head><link href="resource/css/style.css" rel="stylesheet" type="text/css"></head>
+<html lang="en">
+	<head>
+        <link href="resource/css/style.css" rel="stylesheet" type="text/css">
 		<meta charset="utf-8">
 		<title>Register</title>
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
@@ -20,8 +21,8 @@ if(isset($_GET['clear_mess'])){
                  <div>
                      <ol>
                          <?php
-                         if(isset($_SESSION['error_message'])){
-                             foreach ($_SESSION['error_message'] as $err) {
+                         if(isset($_SESSION['user']['error_message'])){
+                             foreach ($_SESSION['user']['error_message'] as $err) {
                                  echo "<li>".$err."</li>";
                              }
                          }
@@ -33,11 +34,11 @@ if(isset($_GET['clear_mess'])){
 		<div class="bg_register"></div>
 		<div class="register">
 			<h1>Register</h1>
-			<form action="../controller/user/create.php" method="post" id="form_register">
+			<form action="../controller/admin/create.php" method="post" id="form_register">
 				<label for="full_name">
 					<i class="fas fa-user"></i>
 				</label>
-				<input type="text" value="<?= $_SESSION['full_name'] ?? '' ?>" name="full_name" placeholder="Full Name" id="full_name" required>
+				<input type="text" value="<?= $_SESSION['user']['full_name'] ?? '' ?>" name="full_name" placeholder="Full Name" id="full_name" required>
                 <label for="sex">
 					<i class="fas fa-venus-mars"></i>
 				</label>
@@ -49,35 +50,35 @@ if(isset($_GET['clear_mess'])){
                 <label for="age">
 					<i class="fas fa-calendar"></i>
 				</label>
-				<input type="number" value="<?= $_SESSION['age'] ?? '' ?>" name="age" placeholder="Age" id="age" required>
+				<input type="number" value="<?= $_SESSION['user']['age'] ?? '' ?>" name="age" placeholder="Age" id="age" required>
                 <label for="phone_number">
 					<i class="fas fa-mobile"></i>
 				</label>
-				<input type="number" value="<?= $_SESSION['phone_number'] ?? '' ?>" name="phone_number" placeholder="Phone Number" id="phone_number" required>
+				<input type="number" value="<?= $_SESSION['user']['phone_number'] ?? '' ?>" name="phone_number" placeholder="Phone Number" id="phone_number" required>
                 <label for="email">
 					<i class="fas fa-envelope"></i>
 				</label>
-				<input type="text" value="<?= $_SESSION['email'] ?? '' ?>" name="email" placeholder="Email" id="email" required>
+				<input type="text" value="<?= $_SESSION['user']['email'] ?? '' ?>" name="email" placeholder="Email" id="email" required>
 
                 <label for="address">
 					<i class="fas fa-location-arrow"></i>
 				</label>
-				<input type="text" name="address" value="<?= $_SESSION['address'] ?? '' ?>" placeholder="Address" id="address" required>
+				<input type="text" name="address" value="<?= $_SESSION['user']['address'] ?? '' ?>" placeholder="Address" id="address" required>
 
                 <label for="username">
 					<i class="fas fa-user"></i>
 				</label>
-				<input type="text" name="username" value="<?= $_SESSION['username'] ?? '' ?>" placeholder="Username" id="username" required>
+				<input type="text" name="username" value="<?= $_SESSION['user']['username'] ?? '' ?>" placeholder="Username" id="username" required>
 
                 <label for="password">
 					<i class="fas fa-lock"></i>
 				</label>
-				<input type="password" name="password" value="<?= $_SESSION['password'] ?? '' ?>" placeholder="Password" id="password" required>
+				<input type="password" name="password" value="<?= $_SESSION['user']['password'] ?? '' ?>" placeholder="Password" id="password" required>
 
                 <label for="re_password">
 					<i class="fas fa-lock"></i>
 				</label>
-				<input type="password" name="re_password" value="<?= $_SESSION['re_password'] ?? '' ?>" placeholder="Re-Enter the password" id="re_password" required>
+				<input type="password" name="re_password" value="<?= $_SESSION['user']['re_password'] ?? '' ?>" placeholder="Re-Enter the password" id="re_password" required>
 
 
                 <button type="submit" form="form_register" value="register" class="button-82-pushable" role="button">
@@ -97,7 +98,7 @@ if(isset($_GET['clear_mess'])){
 			</form>
 		</div>
         <script>
-            const temp = value = "<?= $_SESSION['sex'] ?? '' ?>" ;
+            const temp = value = "<?= $_SESSION['user']['sex'] ?? '' ?>" ;
             const mySelect = document.getElementById('sex');
             if (temp !== null){
                 for (let i in mySelect) {
@@ -108,7 +109,7 @@ if(isset($_GET['clear_mess'])){
                 }
             }
 
-            const error =  "<?= isset($_SESSION['error_message']) ? 1 : 0 ?>" ;
+            const error =  "<?= isset($_SESSION['user']['error_message']) ? 1 : 0 ?>" ;
             if (error === "1"){
                 const popup = document.getElementById("popupContent");
                 popup.style.visibility = "visible";

@@ -288,7 +288,7 @@ class Blogs {
     /**
      * @throws Exception
      * $filter[$attribute, $operator, $value, $combine]
-     * $operator: < > = <= >= like in
+     * $operator: < > = <= >= like in is
      * $combine: and or
      */
     public function filterByAttributes($filters) {

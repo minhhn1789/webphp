@@ -12,19 +12,26 @@ use model\Users;
 $author_name = '';
 $user_id = '';
 $username = 'User';
-$error = 'Please Login!';
+$error = '';
 $results = [];
+$default_number_posts = 5;
+$total_page = 1;
+
+$page = $_GET['page'] ?? 1;
+$start = ($page - 1) * $default_number_posts;
+$end = $page * $default_number_posts;
+
 if (isset($_GET['clear_mess'])){
-    $_SESSION['error_message'] = '';
-    $_SESSION['message'] = '';
+    unset($_SESSION['user']['error_message']);
+    unset($_SESSION['user']['message']);
 }
-$message = $_SESSION['message'] ?? '';
+$message = $_SESSION['user']['message'] ?? '';
 
 
 if (isset($_GET['author_id'])){
     try {
-            $user_id = $_SESSION['user_id'] ?? '';
-            $username = $_SESSION['name'] ?? '';
+            $user_id = $_SESSION['user']['user_id'] ?? '';
+            $username = $_SESSION['user']['name'] ?? '';
             $pdo = new Database();
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -37,6 +44,8 @@ if (isset($_GET['author_id'])){
                 "'".$_GET['author_id']."'",
                 null
             ]]);
+            $total_page = floor(count($results) / $default_number_posts);
+            $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
     } catch (Exception $e) {
         $error = 'Can not get list posts: '.  $e->getMessage();
     }
@@ -52,7 +61,7 @@ if (isset($_GET['author_id'])){
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Clean Blog - Contact</title>
+    <title>Posts by <?= $author_name ?></title>
 
     <!-- Bootstrap Core CSS -->
     <link href="../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -76,37 +85,8 @@ if (isset($_GET['author_id'])){
 
 <body>
 
-<!-- Navigation -->
-<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
-    <div class="container-fluid">
+<?php include_once '../header.php'?>
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="../../index.php">Home</a>
-                </li>
-                <?php
-                if (isset($_SESSION['login']) && $user_id) {
-                    echo "                
-                            <li class='dropdown'>
-                                <a class='dropbtn'> Welcome ".$username. "</a>
-                                <div class='dropdown-content'>
-                                    <a class='dropdown_item-1' href='../user/detail.php?id=".$user_id."'>Account</a>
-                                    <a class='dropdown_item-2' href='list.php'>Posts</a>
-                                    <a class='dropdown_item-3' href='../logout.php'>Logout</a>
-                                </div>
-                            </li>";
-                }else{
-                    echo "<li><a href='../login.php'>Login</a></li>";
-                }
-                ?>
-            </ul>
-        </div>
-        <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container -->
-</nav>
 
 <!-- Page Header -->
 <header class="intro-header">
@@ -129,35 +109,45 @@ if (isset($_GET['author_id'])){
         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
             <?php
             if(!empty($results)){
-                foreach ($results as $result){
-                    if(strlen($result['content']) > 50){
-                        $shortDes = substr($result['content'],0,50)."...";
-                    }else{
-                        $shortDes = $result['content'];
+                foreach ($results as $key => $result){
+                    if($key > $end){
+                        break;
                     }
-                    echo "
+                    if( $start <= $key && $key < $end) {
+                        if (strlen($result['content']) > 50) {
+                            $shortDes = substr($result['content'], 0, 50) . "...";
+                        } else {
+                            $shortDes = $result['content'];
+                        }
+                        echo "
                         <div class='post-preview'>
-                            <a href='post.php?id=".$result['id']."'>
+                            <a href='post.php?id=" . $result['id'] . "'>
                                 <h2 class='post-title'>
-                                    ".$result['title']."
+                                    " . $result['title'] . "
                                 </h2>
                                 <h3 class='post-subtitle'>
-                                    ".$shortDes."
+                                    " . $shortDes . "
                                 </h3>
                             </a>
-                            <p class='post-meta'>Posted by <a href='#'>".$result['full_name']."</a> at ".$result['updated_at']."</p>
+                            <p class='post-meta'>Posted by <a href='#'>" . $result['full_name'] . "</a> at " . $result['updated_at'] . "</p>
                                 </div>
                         <hr>
                     ";
+                    }
                 }
             }
             ?>
 
             <!-- Pager -->
             <ul class="pager">
-                <li class="next">
-                    <a href="#">Older Posts &rarr;</a>
-                </li>
+                <?php
+                if($page > 1){
+                    echo '<li class="next previous"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
+                }
+                if ($total_page > $page){
+                    echo '<li class="next"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
+                }
+                ?>
             </ul>
         </div>
     </div>

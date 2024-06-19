@@ -28,6 +28,6 @@ if (isset($_GET['id']) && isset($_SESSION['user_id']) && isset($_SESSION['login'
     }
 
     $_SESSION['message'] = $message;
-    header('Location: ../../view/posts/list.php');
+    header('Location: /blog/view/posts/list.php');
     exit;
 }

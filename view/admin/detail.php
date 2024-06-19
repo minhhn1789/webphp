@@ -13,17 +13,19 @@ $phone_number = '';
 $email = '';
 $address = '';
 $username = '';
+$role = '';
+$status = '';
 $error = 'Please Login!';
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['error_message']);
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['admin']['error_message']);
+    unset($_SESSION['admin']['message']);
 }
-$message = $_SESSION['user']['message'] ?? '';
+$message = $_SESSION['admin']['message'] ?? '';
 
 
-if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
+if (isset($_GET['id']) && isset($_SESSION['admin']['login_admin'])){
     try {
-        if($_SESSION['user']['login']) {
+        if($_SESSION['admin']['login_admin']) {
             $pdo = new Database();
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -36,7 +38,9 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
             $email = $user->getEmail();
             $address = $user->getAddress();
             $username = $user->getUsername();
-            $error = $_SESSION['user']['error_message'] ?? '';
+            $role = $user->getRole();
+            $status = $user->getStatus();
+            $error = $_SESSION['admin']['error_message'] ?? '';
         }
     } catch (Exception $e) {
         $error = 'Can not get user information: '.  $e->getMessage();
@@ -53,7 +57,7 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>User Information</title>
+    <title>Account Detail</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -77,7 +81,7 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
 
 <body>
 
-<?php include_once '../header.php'?>
+<?php include_once 'header.php'?>
 
 <!-- Page Header -->
 <!-- Set your background image for this header on the line below. -->
@@ -103,8 +107,8 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
         <div id="myPopupSuccess"><h1>Message</h1><a href="detail.php?id=<?= $id ?>&clear_mess=true">x</a></div>
         <div>
             <?php
-            if(isset($_SESSION['user']['message'])){
-                echo "<p>".$_SESSION['user']['message']."</p>";
+            if(isset($_SESSION['admin']['message'])){
+                echo "<p>".$_SESSION['admin']['message']."</p>";
             }
             ?>
         </div>
@@ -127,7 +131,7 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
 <div class="container">
     <div class="row">
         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            <form action="../../controller/user/detail.php" method="post" id="update_user">
+            <form action="../../controller/admin/detail.php" method="post" id="update_user">
                 <input type="hidden" value="<?= $id ?>" id="user_id" name="user_id">
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-with-value controls">
@@ -171,28 +175,63 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
                 </div>
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="role">Role</label>
+                        <select name="role" id="role" class="form-control" disabled>
+                            <option value="admin">Admin</option>
+                            <option value="user">User</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                        <label for="status">Status</label>
+                        <select name="status" id="status" class="form-control" required>
+                            <option value="">--Please choose an option--</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row control-group">
+                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <label for="username">Username</label>
                         <input value="<?= $username ?>" type="text" class="form-control" placeholder="Username" id="username" name="username" required>
                     </div>
                 </div>
-                <div class="row control-group">
-                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
-                        <label for="current_password">Current Password</label>
-                        <input type="password" class="form-control" placeholder="Current Password" id="current_password" name="current_password">
+                <?php
+                if($id == $_SESSION['admin']['admin_id']){
+                    echo '
+                    <div class="row control-group">
+                        <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                            <label for="current_password">Current Password</label>
+                            <input type="password" class="form-control" placeholder="Current Password" id="current_password" name="current_password">
+                        </div>
                     </div>
-                </div>
-                <div class="row control-group">
-                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
-                        <label for="new_password">New Password</label>
-                        <input type="password" class="form-control" placeholder="New Password" id="new_password" name="new_password">
+                    <div class="row control-group">
+                        <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                            <label for="new_password">New Password</label>
+                            <input type="password" class="form-control" placeholder="New Password" id="new_password" name="new_password">
+                        </div>
                     </div>
-                </div>
-                <div class="row control-group">
-                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
-                        <label for="re_password">Re-Enter New Password</label>
-                        <input type="password" class="form-control" placeholder="Re-Enter New Password" id="re_password" name="re_password">
+                    <div class="row control-group">
+                        <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                            <label for="re_password">Re-Enter New Password</label>
+                            <input type="password" class="form-control" placeholder="Re-Enter New Password" id="re_password" name="re_password">
+                        </div>
                     </div>
-                </div>
+                    ';
+                }else{
+                    echo '
+                        <div class="row control-group">
+                            <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                                <label for="your_password">Your Password</label>
+                                <input type="password" class="form-control" placeholder="Your Password" id="your_password" name="your_password">
+                            </div>
+                        </div>
+                    ';
+                }
+                ?>
+
                 <br>
                 <div class="row">
                     <div class="form-group col-xs-12">
@@ -263,6 +302,28 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
         }
     }
 
+    const temp1 = value = "<?= $role ?? '' ?>" ;
+    const mySelect1 = document.getElementById('role');
+    if (temp1 !== null){
+        for (let i in mySelect1) {
+            if (mySelect1[i].value === temp1) {
+                mySelect1.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    const temp2 = value = "<?= $status ?? '' ?>" ;
+    const mySelect2 = document.getElementById('status');
+    if (temp2 !== null){
+        for (let i in mySelect2) {
+            if (mySelect2[i].value === temp2) {
+                mySelect2.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
     const error =  "<?php
         if(is_array($error)) {
             echo !empty($error) ? 1 : 0;
@@ -279,12 +340,6 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
     if (error === "1"){
         const popup = document.getElementById("popupContent");
         popup.style.visibility = "visible";
-    }
-
-    const login = <?= isset($_SESSION['user']['login']) ? 1 : 0?>;
-    if(login === 0) {
-        const saveButton = document.getElementById("save_form_button");
-        saveButton.disabled = true;
     }
 </script>
 

@@ -10,26 +10,32 @@ class Accounts {
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
 
-    const BASE_QUERY = 'SELECT * FROM accounts WHERE ';
+    const BASE_QUERY = 'SELECT accounts.*, users.role, users.status as user_status FROM accounts LEFT JOIN users on users.id = accounts.user_id WHERE ';
 
     private $pdo;
     private $user_id;
     private $username;
     private $password;
     private $status;
+    private $role;
+    private $user_status;
 
     public function __construct(
         $pdo,
         $user_id = null,
         $username = null,
         $password = null,
-        $status = null
+        $status = null,
+        $role = null,
+        $user_status = null
     ){
         $this->pdo = $pdo;
         $this->user_id = $user_id;
         $this->username = $username;
         $this->password = $password;
         $this->status = $status;
+        $this->role = $role;
+        $this->user_status = $user_status;
     }
 
     public function getUserId() {
@@ -46,6 +52,14 @@ class Accounts {
 
     public function getStatus() {
         return $this->status;
+    }
+
+    public function getRole() {
+        return $this->role;
+    }
+
+    public function getUserStatus() {
+        return $this->user_status;
     }
 
     public function setUserId($id): Accounts
@@ -69,6 +83,18 @@ class Accounts {
     public function setStatus($status): Accounts
     {
         $this->status = $status;
+        return $this;
+    }
+
+    public function setRole($role): Accounts
+    {
+        $this->role = $role;
+        return $this;
+    }
+
+    public function setUserStatus($user_status): Accounts
+    {
+        $this->user_status = $user_status;
         return $this;
     }
 
@@ -129,7 +155,9 @@ class Accounts {
                         $value['user_id'],
                         $value['username'],
                         $value['password'],
-                        $value['status']
+                        $value['status'],
+                        $value['role'],
+                        $value['user_status']
                     );
                 }
             }

@@ -1,33 +1,29 @@
 <?php
 ini_set('display_errors', '1');
 
-include_once "../../model/database.php";
-include_once "../../model/blogs.php";
-include_once "../../model/users.php";
+include_once "../../../model/database.php";
+include_once "../../../model/blogs.php";
+include_once "../../../model/users.php";
 session_start();
 use model\Database;
 use model\Blogs;
 use model\Users;
 
 $author_name = '';
-$user_id = '';
 $author_id = '';
-$username = 'User';
-$error = 'Please Login!';
+$error = '';
 $title = '';
 $content = '';
 $updated_at = '';
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['error_message']);
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['admin']['error_message']);
+    unset($_SESSION['admin']['message']);
 }
-$message = $_SESSION['user']['message'] ?? '';
+$message = $_SESSION['message'] ?? '';
 
 
-if (isset($_GET['id'])){
+if (isset($_GET['id']) && isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin'])){
     try {
-        $user_id = $_SESSION['user']['user_id'] ?? '';
-        $username = $_SESSION['user']['name'] ?? '';
         $pdo = new Database();
         $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -57,13 +53,13 @@ if (isset($_GET['id'])){
     <title>Post - <?= $title?></title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Theme CSS -->
-    <link href="../resource/css/clean-blog.css" rel="stylesheet">
+    <link href="../../resource/css/clean-blog.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="../resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="../../resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
@@ -145,17 +141,17 @@ if (isset($_GET['id'])){
 </footer>
 
 <!-- jQuery -->
-<script src="../resource/vendor/jquery/jquery.min.js"></script>
+<script src="../../resource/vendor/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="../resource/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../../resource/vendor/bootstrap/js/bootstrap.min.js"></script>
 
 <!-- Contact Form JavaScript -->
-<script src="../resource/js/jqBootstrapValidation.js"></script>
-<script src="../resource/js/contact_me.js"></script>
+<script src="../../resource/js/jqBootstrapValidation.js"></script>
+<script src="../../resource/js/contact_me.js"></script>
 
 <!-- Theme JavaScript -->
-<script src="../resource/js/clean-blog.min.js"></script>
+<script src="../../resource/js/clean-blog.min.js"></script>
 
 </body>
 

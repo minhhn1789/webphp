@@ -1,17 +1,18 @@
 <?php
 ini_set('display_errors', '1');
 
-include_once "../../model/database.php";
-include_once "../../model/blogs.php";
+include_once "../../../model/database.php";
+include_once "../../../model/blogs.php";
+include_once "../../../model/users.php";
 session_start();
 use model\Database;
 use model\Blogs;
+use model\Users;
 
-$author_id = '';
-$username = 'User';
-$error = 'Please Login!';
+$author_name = '';
+$error = '';
 $results = [];
-$default_number_posts = 10;
+$default_number_posts = 5;
 $total_page = 1;
 
 $page = $_GET['page'] ?? 1;
@@ -19,30 +20,30 @@ $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
 
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['admin']['error_message']);
+    unset($_SESSION['admin']['message']);
 }
+$message = $_SESSION['admin']['message'] ?? '';
 
 
-if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
+if (isset($_GET['author_id']) && isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin'])){
     try {
-        if($_SESSION['user']['login']) {
-            $author_id = $_SESSION['user']['user_id'];
-            $username = $_SESSION['user']['name'];
             $pdo = new Database();
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $author = Users::getById($pdo, $_GET['author_id']);
+            $author_name = $author->getFullName();
             $posts = new Blogs($pdo);
             $results = $posts->filterByAttributes([[
                 Blogs::AUTHOR_ID,
                 "=",
-                "'".$_SESSION['user']['user_id']."'",
+                "'".$_GET['author_id']."'",
                 null
             ]]);
-            $total_page = floor(count($results) / $default_number_posts);
-            $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
-        }
+        $total_page = floor(count($results) / $default_number_posts);
+        $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
     } catch (Exception $e) {
-        $error = 'Can not get post information: '.  $e->getMessage();
+        $error = 'Can not get list posts: '.  $e->getMessage();
     }
 }
 ?>
@@ -56,16 +57,16 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>List Posts</title>
+    <title>List By <?= $author_name ?></title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Theme CSS -->
-    <link href="../resource/css/clean-blog.css" rel="stylesheet">
+    <link href="../../resource/css/clean-blog.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="../resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="../../resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
@@ -82,27 +83,15 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
 
 <?php include_once '../header.php'?>
 
-<div class="popup">
-    <div class="popuptextSuccess" id="popupContentSuccess">
-        <div id="myPopupSuccess"><h1>Message</h1><a href="list.php?clear_mess=true">x</a></div>
-        <div>
-            <?php
-            if(isset($_SESSION['user']['message'])){
-                echo "<p>".$_SESSION['user']['message']."</p>";
-            }
-            ?>
-        </div>
-    </div>
-</div>
-
 <!-- Page Header -->
 <header class="intro-header">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="page-heading">
-                    <h1>List Post</h1>
+                    <h1>List Posts By</h1>
                     <hr class="small">
+                    <h1><?= $author_name ?></h1>
                 </div>
             </div>
         </div>
@@ -112,17 +101,7 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
 <!-- Main Content -->
 <div class="container">
     <div class="row">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th scope="col" style="width: 5%">ID</th>
-                <th scope="col" style="width: 35%">Title</th>
-                <th scope="col" style="width: 20%">Created At</th>
-                <th scope="col" style="width: 20%">Updated At</th>
-                <th scope="col" style="width: 20%">Action</th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
             <?php
             if(!empty($results)){
                 foreach ($results as $key => $result){
@@ -130,37 +109,42 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
                         break;
                     }
                     if( $start <= $key && $key < $end) {
+                        if (strlen($result['content']) > 50) {
+                            $shortDes = substr($result['content'], 0, 50) . "...";
+                        } else {
+                            $shortDes = $result['content'];
+                        }
                         echo "
-                         <tr>
-                            <th class='posts_list'>" . $result['id'] . "</th>
-                            <th class='posts_list'><a href='detail.php?id=" . $result['id'] . "'>" . $result['title'] . "</a></th>
-                            <th class='posts_list'>" . $result['created_at'] . "</th>
-                            <th class='posts_list'>" . $result['updated_at'] . "</th>
-                            <th class='posts_list'>
-                            <span>
-                            <a href='post.php?id=" . $result['id'] . "'>View</a> | 
-                            <a href='detail.php?id=" . $result['id'] . "'>Edit</a> | 
-                            <a href='../../controller/post/delete.php?id=" . $result['id'] . "'>Delete</a>
-                            </span>
-                            </th>
-                        </tr>
+                            <div class='post-preview'>
+                                <a href='post.php?id=" . $result['id'] . "'>
+                                    <h2 class='post-title'>
+                                        " . $result['title'] . "
+                                    </h2>
+                                    <h3 class='post-subtitle'>
+                                        " . $shortDes . "
+                                    </h3>
+                                </a>
+                                <p class='post-meta'>Posted by <a href='#'>" . $result['full_name'] . "</a> at " . $result['updated_at'] . "</p>
+                                    </div>
+                            <hr>
                         ";
                     }
                 }
             }
             ?>
-            </tbody>
-        </table>
-        <ul class="pager">
-            <?php
-            if($page > 1){
-                echo '<li class="next previous"><a href="list.php?page=' . ($page - 1) . '">&larr; Previous</a></li>';
-            }
-            if ($total_page > $page){
-                echo '<li class="next"><a href="list.php?page=' . ($page + 1) . '">Next &rarr;</a> </li>';
-            }
-            ?>
-        </ul>
+
+            <!-- Pager -->
+            <ul class="pager">
+                <?php
+                if($page > 1){
+                    echo '<li class="next previous"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
+                }
+                if ($total_page > $page){
+                    echo '<li class="next"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
+                }
+                ?>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -197,29 +181,27 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
                         </a>
                     </li>
                 </ul>
+                <p class="copyright text-muted">Copyright &copy; Your Website 2016</p>
             </div>
         </div>
     </div>
 </footer>
 
 <!-- jQuery -->
-<script src="../resource/vendor/jquery/jquery.min.js"></script>
+<script src="../../resource/vendor/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="../resource/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../../resource/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Contact Form JavaScript -->
+<script src="../../resource/js/jqBootstrapValidation.js"></script>
+<script src="../../resource/js/contact_me.js"></script>
 
 <!-- Theme JavaScript -->
-<script src="../resource/js/clean-blog.min.js"></script>
-
-<script>
-    const mess =  "<?= isset($_SESSION['user']['message']) ? 1 : 0 ?>" ;
-    if (mess === "1"){
-        const popup = document.getElementById("popupContentSuccess");
-        popup.style.visibility = "visible";
-    }
-</script>
+<script src="../../resource/js/clean-blog.min.js"></script>
 
 </body>
 
 </html>
+
 

@@ -3,8 +3,8 @@
 ini_set('display_errors', '1');
 session_start();
 
-include_once "../../model/database.php";
-include_once "../../model/blogs.php";
+include_once "../../../model/database.php";
+include_once "../../../model/blogs.php";
 
 
 use model\Database;
@@ -40,20 +40,20 @@ try{
                 throw new Exception("Cannot create post!");
             }
         }catch (Exception $e){
-            $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
-            $_SESSION['user']['error_message'] = 'Can not create new post caught exception: '.  $e->getMessage(). "\n";
-            header('Location: /blog/view/posts/create.php');
+            $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
+            $_SESSION['admin']['error_message'] = 'Can not create new post caught exception: '.  $e->getMessage(). "\n";
+            header('Location: /blog/view/admin/posts/create.php');
             exit;
         }
 
-        $_SESSION['user']['message'] = 'Create post successful!';
-        header('Location: /blog/view/posts/detail.php?id='.$post->getId());
+        $_SESSION['admin']['message'] = 'Create post successful!';
+        header('Location: /blog/view/admin/posts/detail.php?id='.$post->getId());
         exit;
 
     }
 } catch (Exception $e) {
-    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
-    $_SESSION['user']['error_message'] = $e->getMessage();
-    header('Location: /blog/view/posts/create.php');
+    $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
+    $_SESSION['admin']['error_message'] = $e->getMessage();
+    header('Location: /blog/view/admin/posts/create.php');
     exit;
 }

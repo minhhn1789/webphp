@@ -1,7 +1,7 @@
 <?php
 ini_set('display_errors', '1');
 session_start();
-$_SESSION['user'] = [];
+unset($_SESSION['admin']);
 
 include_once "../../model/database.php";
 include_once "../../model/check.php";
@@ -29,9 +29,9 @@ try{
         );
         $err = $check->checkAll()->getErrorMessage();
         if(!empty($err)){
-            $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
-            $_SESSION['user']['error_message'] =  $err;
-            header('Location: ../../view/register.php');
+            $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
+            $_SESSION['admin']['error_message'] =  $err;
+            header('Location: ../../view/admin/register.php');
             exit;
         }
 
@@ -45,28 +45,29 @@ try{
                 $_POST['phone_number'],
                 $_POST['email'],
                 $_POST['username'],
-                $_POST['password']
+                $_POST['password'],
+                Users::ROLE_ADMIN,
+                Users::STATUS_INACTIVE
             );
 
             if(!$user->getId()) {
-                throw new Exception("Cannot create user!");
+                throw new Exception("Cannot create account!");
             }
         }catch (Exception $e){
-            $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
-            $_SESSION['user']['error_message'][] = 'Can not create new account caught exception: '.  $e->getMessage(). "\n";
-            header('Location: ../../view/register.php');
+            $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
+            $_SESSION['admin']['error_message'][] = 'Can not create new account caught exception: '.  $e->getMessage(). "\n";
+            header('Location: ../../view/admin/register.php');
             exit;
         }
 
-        $_SESSION['user']['register'][] = 'Create account successful!';
-        $_SESSION['user']['register'][] = $_POST['username'];
-        header('Location: ../../view/login.php');
+        $_SESSION['admin']['register'] = 'Create account successfully and wait for active by administrator.';
+        header('Location: ../../view/admin/index.php');
         exit;
 
     }
 } catch (Exception $e) {
-    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
-    $_SESSION['user']['error_message'] = $e;
-    header('Location: ../../view/register.php');
+    $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
+    $_SESSION['admin']['error_message'] = $e;
+    header('Location: ../../view/admin/register.php');
     exit;
 }

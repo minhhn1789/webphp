@@ -1,49 +1,34 @@
 <?php
 ini_set('display_errors', '1');
 
-include_once "../../model/database.php";
-include_once "../../model/blogs.php";
+include_once "../../../model/blogs.php";
 session_start();
-use model\Database;
 use model\Blogs;
 
 $author_id = '';
-$username = 'User';
 $status = '';
 $title = '';
 $content = '';
-$image = '';
-$error = 'Please Login!';
-$id = '';
+$error = '';
+
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['error_message']);
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['admin']['error_message']);
+    unset($_SESSION['admin']['message']);
 }
-$message = $_SESSION['user']['message'] ?? '';
+$message = $_SESSION['admin']['message'] ?? '';
 
 
-if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
+if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin'])){
     try {
-        if($_SESSION['user']['login']) {
-            $pdo = new Database();
-            $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $post = Blogs::getById($pdo, $_GET['id']);
-            $username = $_SESSION['user']['name'];
-            $error = $_SESSION['user']['error_message'] ?? '';
-            if($_SESSION['user']['user_id'] == $post->getAuthorId()){
-                $id = $post->getId();
-                $author_id = $post->getAuthorId();
-                $title = $post->getTitle();
-                $content = $post->getContent();
-                $image = $post->getImagePath();
-                $status = $post->getStatus();
-            }else{
-                $error = 'Can not get post with user id: '.$_SESSION['user']['user_id'];
-            }
+        if($_SESSION['admin']['login_admin']) {
+            $author_id = $_SESSION['admin']['admin_id'];
+            $title = $_SESSION['admin']['title'] ?? '';
+            $content = $_SESSION['admin']['content'] ?? '';
+            $status = $_SESSION['admin']['status'] ?? '';
+            $error = $_SESSION['admin']['error_message'] ?? '';
         }
     } catch (Exception $e) {
-        $error = 'Can not get post information: '.  $e->getMessage();
+        $error = 'Something wrong when load: '.  $e->getMessage();
     }
 }
 ?>
@@ -57,16 +42,16 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Post - <?= $title ?></title>
+    <title>Create Post</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Theme CSS -->
-    <link href="../resource/css/clean-blog.css" rel="stylesheet">
+    <link href="../../resource/css/clean-blog.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="../resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="../../resource/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
@@ -82,7 +67,6 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
 <body>
 
 <?php include_once '../header.php'?>
-
 
 <!-- Page Header -->
 <!-- Set your background image for this header on the line below. -->
@@ -108,8 +92,8 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
         <div id="myPopupSuccess"><h1>Message</h1><a href="create.php?clear_mess=true">x</a></div>
         <div>
             <?php
-            if(isset($_SESSION['user']['message'])){
-                echo "<p>".$_SESSION['user']['message']."</p>";
+            if(isset($_SESSION['message'])){
+                echo "<p>".$_SESSION['message']."</p>";
             }
             ?>
         </div>
@@ -120,9 +104,8 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="page-heading">
-                    <h1>Post Detail</h1>
+                    <h1>Create New Post</h1>
                     <hr class="small">
-                    <h2><?= $title ?></h2>
                 </div>
             </div>
         </div>
@@ -133,9 +116,9 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
 <div class="container">
     <div class="row">
         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            <form action="../../controller/post/detail.php" method="post" id="create_post" enctype="multipart/form-data">
-                <input type="hidden" value="<?= $id ?>" id="id" name="id">
+            <form action="/blog/controller/admin/post/create.php" method="post" id="create_post" enctype="multipart/form-data">
                 <input type="hidden" value="<?= $author_id ?>" id="author_id" name="author_id">
+                <input type="hidden" value="admin" id="type" name="type">
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-with-value controls">
                         <label for="title">Title</label>
@@ -152,14 +135,9 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <div class="preview">
-                            <img id="img_preview" src="../..//uploads/<?= $image ?>" alt=""/>
+                            <img id="img_preview" src="" alt=""/>
                             <label for="image_upload">Upload Image</label>
-                            <input accept="image/*" type="file" id="image_upload" name="image_upload"/>
-                        </div>
-                        <div>
-                            <br>
-                            <input type="checkbox" id="delete_image" name="delete_image" value="delete_image">
-                            <label for="delete_image">Delete image</label><br>
+                            <input accept="image/*" type="file" id="image_upload" name="image_upload" />
                         </div>
                     </div>
                 </div>
@@ -176,8 +154,7 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
                 <br>
                 <div class="row">
                     <div class="form-group col-xs-12">
-                        <button id="save_form_button" type="submit" class="btn btn-default" form="create_post" value="update" role="button" name="button">Save</button>
-                        <button id="delete_form_button" type="submit" class="btn btn-default" form="create_post" value="delete" role="button" name="button">Delete</button>
+                        <button id="save_form_button" type="submit" class="btn btn-default" form="create_post" value="update" role="button">Save</button>
                     </div>
                 </div>
             </form>
@@ -224,13 +201,13 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
 </footer>
 
 <!-- jQuery -->
-<script src="../resource/vendor/jquery/jquery.min.js"></script>
+<script src="../../resource/vendor/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="../resource/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../../resource/vendor/bootstrap/js/bootstrap.min.js"></script>
 
 <!-- Theme JavaScript -->
-<script src="../resource/js/clean-blog.min.js"></script>
+<script src="../../resource/js/clean-blog.min.js"></script>
 
 <script>
     const input = document.getElementById('image_upload');
@@ -268,14 +245,6 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
     if (error === "1"){
         const popup = document.getElementById("popupContent");
         popup.style.visibility = "visible";
-    }
-
-    const login = <?= isset($_SESSION['user']['login']) ? 1 : 0?>;
-    if(login === 0) {
-        const saveButton = document.getElementById("save_form_button");
-        saveButton.disabled = true;
-        const deleteButton = document.getElementById("delete_form_button");
-        deleteButton.disabled = true;
     }
 </script>
 

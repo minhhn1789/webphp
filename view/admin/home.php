@@ -7,35 +7,35 @@ session_start();
 use model\Database;
 use model\Blogs;
 
-$author_id = '';
-$username = 'User';
+$admin_id = '';
+$username = 'Admin';
 $error = 'Please Login!';
 $results = [];
-$default_number_posts = 10;
-$total_page = 1;
 
+$default_number_posts = 5;
+$total_page = 1;
 $page = $_GET['page'] ?? 1;
 $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
 
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['admin']['message']);
 }
 
 
-if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
+if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin']) && isset($_SESSION['admin']['is_admin'])){
     try {
-        if($_SESSION['user']['login']) {
-            $author_id = $_SESSION['user']['user_id'];
-            $username = $_SESSION['user']['name'];
+        if($_SESSION['admin']['login_admin'] && $_SESSION['admin']['is_admin']) {
+            $admin_id = $_SESSION['admin']['admin_id'];
+            $username = $_SESSION['admin']['name_admin'];
             $pdo = new Database();
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $posts = new Blogs($pdo);
             $results = $posts->filterByAttributes([[
                 Blogs::AUTHOR_ID,
-                "=",
-                "'".$_SESSION['user']['user_id']."'",
+                "is",
+                "NOT NULL",
                 null
             ]]);
             $total_page = floor(count($results) / $default_number_posts);
@@ -56,7 +56,7 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>List Posts</title>
+    <title>Admin Page</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="../resource/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -80,15 +80,15 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
 
 <body>
 
-<?php include_once '../header.php'?>
+<?php include_once 'header.php'?>
 
 <div class="popup">
     <div class="popuptextSuccess" id="popupContentSuccess">
-        <div id="myPopupSuccess"><h1>Message</h1><a href="list.php?clear_mess=true">x</a></div>
+        <div id="myPopupSuccess"><h1>Message</h1><a href="home.php?clear_mess=true">x</a></div>
         <div>
             <?php
-            if(isset($_SESSION['user']['message'])){
-                echo "<p>".$_SESSION['user']['message']."</p>";
+            if(isset($_SESSION['admin']['message'])){
+                echo "<p>".$_SESSION['admin']['message']."</p>";
             }
             ?>
         </div>
@@ -101,7 +101,7 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="page-heading">
-                    <h1>List Post</h1>
+                    <h1>Admin Page</h1>
                     <hr class="small">
                 </div>
             </div>
@@ -116,9 +116,10 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
             <thead>
             <tr>
                 <th scope="col" style="width: 5%">ID</th>
-                <th scope="col" style="width: 35%">Title</th>
-                <th scope="col" style="width: 20%">Created At</th>
-                <th scope="col" style="width: 20%">Updated At</th>
+                <th scope="col" style="width: 30%">Title</th>
+                <th scope="col" style="width: 15%">Created At</th>
+                <th scope="col" style="width: 15%">Updated At</th>
+                <th scope="col" style="width: 15%">Author</th>
                 <th scope="col" style="width: 20%">Action</th>
             </tr>
             </thead>
@@ -133,14 +134,15 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
                         echo "
                          <tr>
                             <th class='posts_list'>" . $result['id'] . "</th>
-                            <th class='posts_list'><a href='detail.php?id=" . $result['id'] . "'>" . $result['title'] . "</a></th>
+                            <th class='posts_list'><a href='posts/detail.php?id=" . $result['id'] . "'>" . $result['title'] . "</a></th>
                             <th class='posts_list'>" . $result['created_at'] . "</th>
                             <th class='posts_list'>" . $result['updated_at'] . "</th>
+                            <th class='posts_list'>" . $result['full_name'] . "</th>
                             <th class='posts_list'>
                             <span>
-                            <a href='post.php?id=" . $result['id'] . "'>View</a> | 
-                            <a href='detail.php?id=" . $result['id'] . "'>Edit</a> | 
-                            <a href='../../controller/post/delete.php?id=" . $result['id'] . "'>Delete</a>
+                            <a href='posts/post.php?id=" . $result['id'] . "'>View</a> | 
+                            <a href='posts/detail.php?id=" . $result['id'] . "'>Edit</a> | 
+                            <a href='../../controller/admin/post/delete.php?id=" . $result['id'] . "'>Delete</a>
                             </span>
                             </th>
                         </tr>
@@ -154,10 +156,10 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
         <ul class="pager">
             <?php
             if($page > 1){
-                echo '<li class="next previous"><a href="list.php?page=' . ($page - 1) . '">&larr; Previous</a></li>';
+                echo '<li class="next previous"><a href="home.php?page=' . ($page - 1) . '">&larr; Previous</a></li>';
             }
             if ($total_page > $page){
-                echo '<li class="next"><a href="list.php?page=' . ($page + 1) . '">Next &rarr;</a> </li>';
+                echo '<li class="next"><a href="home.php?page=' . ($page + 1) . '">Next &rarr;</a> </li>';
             }
             ?>
         </ul>
@@ -212,7 +214,7 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
 <script src="../resource/js/clean-blog.min.js"></script>
 
 <script>
-    const mess =  "<?= isset($_SESSION['user']['message']) ? 1 : 0 ?>" ;
+    const mess =  "<?= isset($_SESSION['admin']['message']) ? 1 : 0 ?>" ;
     if (mess === "1"){
         const popup = document.getElementById("popupContentSuccess");
         popup.style.visibility = "visible";

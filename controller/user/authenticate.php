@@ -1,13 +1,15 @@
 <?php
 session_start();
-$_SESSION = [];
+$_SESSION['user'] = [];
 ini_set('display_errors', '1');
 
-include "../../model/database.php";
-include "../../model/accounts.php";
+include_once "../../model/database.php";
+include_once "../../model/accounts.php";
+include_once "../../model/users.php";
 
 use model\Database;
 use model\Accounts;
+use model\Users;
 
 try{
     $pdo = new Database();
@@ -18,25 +20,29 @@ try{
         $pdo,
         $_POST['username']
     );
-    if ($account->getUserId()){
+    if ($account->getUserId() &&
+        $account->getRole() == Users::ROLE_USER &&
+        $account->getUserStatus() == Users::STATUS_ACTIVE){
         if (password_verify($_POST['password'], $account->getPassword())){
-            $_SESSION['name'] =  $account->getUsername();
-            $_SESSION['user_id'] = $account->getUserId();
-            $_SESSION['login'] = TRUE;
+            $_SESSION['user']['name'] =  $account->getUsername();
+            $_SESSION['user']['user_id'] = $account->getUserId();
+            $_SESSION['user']['login'] = TRUE;
             header('Location: /blog');
             exit;
         }else{
-            $_SESSION['error_mess'] =  'Incorrect password!';
+            $_SESSION['user']['error_mess'] =  'Incorrect password!';
         }
-    }else{
-        $_SESSION['error_mess'] =  'Incorrect username!';
+    }else if($account->getUserStatus() == Users::STATUS_INACTIVE){
+        $_SESSION['user']['error_mess'] =  'Account not active!';
+    } else{
+        $_SESSION['user']['error_mess'] =  'Incorrect username!';
     }
-    $_SESSION = array_merge($_SESSION, $_POST);
+    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
     header('Location: ../../view/login.php');
     exit;
 } catch (Exception $e){
-    $_SESSION = $_POST;
-    $_SESSION['error_mess'] =  'Cannot login!';
+    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+    $_SESSION['user']['error_mess'] =  'Cannot login!';
     header('Location: ../../view/login.php');
     exit;
 }

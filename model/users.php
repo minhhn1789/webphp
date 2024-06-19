@@ -7,6 +7,7 @@ class Users
 {
     const TABLE = 'users';
     const ID = 'id';
+    const ROLE = 'role';
     const ROLE_ADMIN = 'admin';
     const ROLE_USER = 'user';
     const FULL_NAME = 'full_name';
