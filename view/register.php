@@ -34,7 +34,7 @@ if(isset($_GET['clear_mess'])){
 		<div class="bg_register"></div>
 		<div class="register">
 			<h1>Register</h1>
-			<form action="../controller/admin/create.php" method="post" id="form_register">
+			<form action="../controller/user/create.php" method="post" id="form_register">
 				<label for="full_name">
 					<i class="fas fa-user"></i>
 				</label>
