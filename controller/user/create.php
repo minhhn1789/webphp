@@ -30,7 +30,7 @@ try{
         $err = $check->checkAll()->getErrorMessage();
         if(!empty($err)){
             $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
-            $_SESSION['user']['error_message'] =  $err;
+            $_SESSION['user']['error_message'][] =  $err;
             header('Location: ../../view/register.php');
             exit;
         }
@@ -66,7 +66,7 @@ try{
     }
 } catch (Exception $e) {
     $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
-    $_SESSION['user']['error_message'] = $e;
+    $_SESSION['user']['error_message'][] = $e;
     header('Location: ../../view/register.php');
     exit;
 }
