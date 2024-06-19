@@ -107,7 +107,7 @@ try{
 
     }
 } catch (Exception $e) {
-    $_SESSION['admin']['error_message'] = $e;
+    $_SESSION['admin']['error_message'] = $e->getMessage();
     header('Location: ../../view/admin/detail.php?id='.$_POST['user_id']);
     exit;
 }

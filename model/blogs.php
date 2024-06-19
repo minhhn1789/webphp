@@ -186,7 +186,7 @@ class Blogs {
                 }
             }
         }catch (Exception $e){
-            throw new exception("Upload image error: ".$e);
+            throw new exception("Upload image error: ".  $e->getMessage());
         }
     }
 
@@ -215,7 +215,7 @@ class Blogs {
             $stmt->execute();
             $this->pdo->commit();
         } catch (PDOException $e) {
-            throw new exception('Cannot save post.');
+            throw new exception('Cannot save post '.  $e->getMessage());
         }
     }
 
@@ -241,7 +241,7 @@ class Blogs {
                 $stmt = $this->pdo->prepare("DELETE FROM posts WHERE id = ?");
                 $stmt->execute([$this->id]);
             } catch (PDOException $e) {
-                throw new exception('Cannot delete post');
+                throw new exception('Cannot delete post '.  $e->getMessage());
             }
         }
         $this->id = null;
@@ -281,7 +281,7 @@ class Blogs {
             return new Blogs($pdo);
 
         } catch (PDOException $e) {
-            throw new exception('Cannot get post with id: '.$id);
+            throw new exception('Cannot get post with id: '.$id. ' cause: '.  $e->getMessage());
         }
     }
 
@@ -302,7 +302,7 @@ class Blogs {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (PDOException $e) {
-            throw new exception('Cannot get posts with filters.');
+            throw new exception('Cannot get posts with filters '.  $e->getMessage());
         }
     }
 

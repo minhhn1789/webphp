@@ -67,7 +67,7 @@ try{
     }
 } catch (Exception $e) {
     $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
-    $_SESSION['admin']['error_message'] = $e;
+    $_SESSION['admin']['error_message'][] = $e->getMessage();
     header('Location: ../../view/admin/register.php');
     exit;
 }

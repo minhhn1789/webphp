@@ -43,7 +43,7 @@ try{
     exit;
 } catch (Exception $e){
     $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
-    $_SESSION['admin']['error_mess'] =  'Cannot login!';
+    $_SESSION['admin']['error_mess'] =  'Cannot login cause: '. $e->getMessage();
     header('Location: ../../view/admin');
     exit;
 }

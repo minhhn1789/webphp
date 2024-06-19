@@ -134,7 +134,7 @@ class Accounts {
             $stmt->execute();
             $this->pdo->commit();
         } catch (PDOException $e) {
-            throw new exception('Cannot save account.');
+            throw new exception('Cannot save account '.  $e->getMessage());
         }
         return $this;
     }
@@ -163,7 +163,7 @@ class Accounts {
             }
             return new Accounts($pdo);
         } catch (PDOException $e) {
-            throw new exception('Cannot get account with username: '.$username);
+            throw new exception('Cannot get account with username: '.$username .' cause: '.  $e->getMessage());
         }
     }
 
@@ -184,7 +184,7 @@ class Accounts {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (PDOException $e) {
-            throw new exception('Cannot get account with filters.');
+            throw new exception('Cannot get account with filters '.  $e->getMessage());
         }
     }
 

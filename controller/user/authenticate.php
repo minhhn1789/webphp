@@ -42,7 +42,7 @@ try{
     exit;
 } catch (Exception $e){
     $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
-    $_SESSION['user']['error_mess'] =  'Cannot login!';
+    $_SESSION['user']['error_mess'] =  'Cannot login cause:' . $e->getMessage();
     header('Location: ../../view/login.php');
     exit;
 }

@@ -216,7 +216,7 @@ class Users
             }
             $this->pdo->commit();
         } catch (PDOException $e) {
-            throw new exception('Cannot save user.');
+            throw new exception('Cannot save user '.  $e->getMessage());
         }
         return $this;
     }
@@ -246,7 +246,7 @@ class Users
                 $status
             );
         } catch (PDOException $e) {
-            throw new exception('Cannot save account.');
+            throw new exception('Cannot save account '.  $e->getMessage());
         }
     }
 
@@ -265,7 +265,7 @@ class Users
             );
             $account->save();
         } catch (PDOException $e) {
-            throw new exception('Cannot save account.');
+            throw new exception('Cannot save account '.  $e->getMessage());
         }
     }
 
@@ -281,7 +281,7 @@ class Users
                 $stmt_user = $this->pdo->prepare("DELETE FROM users WHERE id = ?");
                 $stmt_user->execute([$this->id]);
             } catch (PDOException $e) {
-                throw new exception('Cannot delete user.');
+                throw new exception('Cannot delete user '.  $e->getMessage());
             }
         }
         $this->id = null;
@@ -324,7 +324,7 @@ class Users
             }
             return new Users($pdo);
         } catch (PDOException $e) {
-            throw new exception('Cannot get user with id: '.$id);
+            throw new exception('Cannot get user with id: '.$id.' cause: '.  $e->getMessage());
         }
     }
 
@@ -347,7 +347,7 @@ class Users
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (PDOException $e) {
-            throw new exception('Cannot get users with filters.');
+            throw new exception('Cannot get users with filters: '.  $e->getMessage());
         }
     }
 }
