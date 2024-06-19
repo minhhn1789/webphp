@@ -44,8 +44,8 @@ try{
             }
 
         }catch (Exception $e){
-            $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
             $_SESSION['user']['error_message'] = 'Can not update post cause exception: '.  $e->getMessage(). "\n";
+            $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
             header('Location: /blog/view/posts/detail.php?id='.$_POST['id']);
             exit;
         }
@@ -55,8 +55,8 @@ try{
 
     }
 } catch (Exception $e) {
-    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
     $_SESSION['user']['error_message'] = $e->getMessage();
+    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
     header('Location: /blog/view/posts/detail.php?id='.$_POST['id']);
     exit;
 }

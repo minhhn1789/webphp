@@ -1,6 +1,6 @@
 <?php
 session_start();
-unset($_SESSION['admin']);
+$_SESSION['admin'] = [];
 ini_set('display_errors', '1');
 
 include_once "../../model/database.php";
@@ -42,8 +42,8 @@ try{
     header('Location: ../../view/admin');
     exit;
 } catch (Exception $e){
-    $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
     $_SESSION['admin']['error_mess'] =  'Cannot login cause: '. $e->getMessage();
+    $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
     header('Location: ../../view/admin');
     exit;
 }

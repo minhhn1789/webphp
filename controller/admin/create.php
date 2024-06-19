@@ -1,7 +1,7 @@
 <?php
 ini_set('display_errors', '1');
 session_start();
-unset($_SESSION['admin']);
+$_SESSION['admin'] = [];
 
 include_once "../../model/database.php";
 include_once "../../model/check.php";
@@ -54,8 +54,8 @@ try{
                 throw new Exception("Cannot create account!");
             }
         }catch (Exception $e){
-            $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
             $_SESSION['admin']['error_message'][] = 'Can not create new account caught exception: '.  $e->getMessage(). "\n";
+            $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
             header('Location: ../../view/admin/register.php');
             exit;
         }
@@ -66,8 +66,8 @@ try{
 
     }
 } catch (Exception $e) {
-    $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
     $_SESSION['admin']['error_message'][] = $e->getMessage();
+    $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
     header('Location: ../../view/admin/register.php');
     exit;
 }

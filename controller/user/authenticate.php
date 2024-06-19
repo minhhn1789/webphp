@@ -41,8 +41,8 @@ try{
     header('Location: ../../view/login.php');
     exit;
 } catch (Exception $e){
-    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
     $_SESSION['user']['error_mess'] =  'Cannot login cause:' . $e->getMessage();
+    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
     header('Location: ../../view/login.php');
     exit;
 }
