@@ -149,7 +149,7 @@ class Blogs {
             $blog->_imageUpload();
         }
         $blog->save();
-        $blog->id = $blog->pdo->lastInsertId();
+//        $blog->id = $blog->pdo->lastInsertId();
         return $blog;
     }
 
@@ -213,6 +213,9 @@ class Blogs {
             $stmt->bindParam(':image', $this->image_path, PDO::PARAM_STR);
             $stmt->bindParam(':status', $this->status, PDO::PARAM_STR);
             $stmt->execute();
+            if($this->id === null){
+                $this->id = $this->pdo->lastInsertId();
+            }
             $this->pdo->commit();
         } catch (PDOException $e) {
             throw new exception('Cannot save post '.  $e->getMessage());
