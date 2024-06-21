@@ -15,17 +15,17 @@ try{
             $filter_array = [];
             $postIds = explode(',',$_POST['post_id']);
             if($_POST['post_id']){
-                $combine = (!empty($_POST['title']) || !empty($_POST['author']) || !empty($_POST['status'])) ? 'OR' : null;
+                $combine = !empty($_POST['title']) ? 'OR' : ') AND';
                 if(count($postIds) > 1){
                     $filter_array[] = [
-                        Blogs::TABLE.'.'.Blogs::ID,
+                        '(' . Blogs::TABLE.'.'.Blogs::ID,
                         "IN",
                         "(".$_POST['post_id'].")",
                         $combine
                     ];
                 }else{
                     $filter_array[] = [
-                        Blogs::TABLE.'.'.Blogs::ID,
+                        '(' . Blogs::TABLE.'.'.Blogs::ID,
                         "=",
                         $_POST['post_id'],
                         $combine
@@ -33,67 +33,48 @@ try{
                 }
             }
             if($_POST['title']){
-                $combine = (!empty($_POST['author']) || !empty($_POST['status'])) ? 'OR' : null;
                 $filter_array[] = [
-                    Blogs::TITLE,
+                    (!empty($_POST['post_id'])) ? Blogs::TITLE : '(' . Blogs::TITLE,
                     "LIKE",
                     "'%".$_POST['title']."%'",
-                    $combine
+                    ') AND'
                 ];
             }
             if($_POST['status']){
                 $filter_array[] = [
                     Blogs::TABLE.'.'.Blogs::STATUS,
-                    "LIKE",
+                    "=",
                     "'".$_POST['status']."'",
-                    null
+                    'AND'
                 ];
             }
-            if($_POST['author']){
-                $filter_array[] = [
-                    'users.full_name',
-                    "LIKE",
-                    "'%".$_POST['author']."%'",
-                    null
-                ];
-            }
+            $filter_array[] = [
+                Blogs::AUTHOR_ID,
+                "=",
+                "'".$_POST['author_id']."'",
+                null
+            ];
             if(empty($filter_array)){
-                $_SESSION['admin']['error_message'] = 'Please enter value for filter!';
-                header('Location: /blog/view/admin/home.php');
+                $_SESSION['users']['error_message'] = 'Please enter value for filter!';
+                header('Location: /blog/view/posts/list.php');
                 exit;
             }
-            $_SESSION['admin']['filter']['posts'] = $filter_array;
-            $_SESSION['admin']['filter_value']['posts'] = $_POST;
-            unset($_SESSION['admin']['error_message']);
-            header('Location: /blog/view/admin/home.php?filter=true');
+            $_SESSION['users']['filter'] = $_POST;
+            $_SESSION['users']['filter']['filter_array'] = $filter_array;
+            unset($_SESSION['users']['error_message']);
+            header('Location: /blog/view/posts/list.php?filter=true');
             exit;
 
         }catch (Exception $e){
-            $_SESSION['admin']['error_message'] = 'Can not filter cause exception: '.  $e->getMessage(). "\n";
-            if($_POST['type'] == 'posts'){
-                $_SESSION['admin']['filter_value']['posts'] = $_POST;
-                header('Location: /blog/view/admin/home.php?filter=true');
-            }else if($_POST['type'] == 'users'){
-                $_SESSION['admin']['filter_value']['users'] = $_POST;
-                header('Location: /blog/view/admin/list_users.php?filter=true');
-            }else if($_POST['type'] == 'admin'){
-                $_SESSION['admin']['filter_value']['admin'] = $_POST;
-                header('Location: /blog/view/admin/list_admin.php?filter=true');
-            }
+            $_SESSION['users']['error_message'] = 'Can not filter cause exception: '.  $e->getMessage(). "\n";
+            $_SESSION['users']['filter'] = $_POST;
+            header('Location: /blog/view/posts/list.php?filter=true');
             exit;
         }
     }
 } catch (Exception $e) {
-    $_SESSION['admin']['error_message'] = $e->getMessage();
-    if($_POST['type'] == 'posts'){
-        $_SESSION['admin']['filter_value']['posts'] = $_POST;
-        header('Location: /blog/view/admin/home.php?filter=true');
-    }else if($_POST['type'] == 'users'){
-        $_SESSION['admin']['filter_value']['users'] = $_POST;
-        header('Location: /blog/view/admin/list_users.php?filter=true');
-    }else if($_POST['type'] == 'admin'){
-        $_SESSION['admin']['filter_value']['admin'] = $_POST;
-        header('Location: /blog/view/admin/list_admin.php?filter=true');
-    }
+    $_SESSION['users']['error_message'] = $e->getMessage();
+    $_SESSION['users']['filter'] = $_POST;
+    header('Location: /blog/view/posts/list.php?filter=true');
     exit;
 }

@@ -9,7 +9,7 @@ use model\Blogs;
 
 $author_id = '';
 $username = 'User';
-$error = 'Please Login!';
+$error = $_SESSION['users']['error_message'] ?? '';
 $_SESSION['users']['searchable'] = false;
 
 $results = [];
@@ -22,10 +22,11 @@ $end = $page * $default_number_posts;
 
 if (isset($_GET['clear_mess'])){
     unset($_SESSION['users']['message']);
+    unset($_SESSION['users']['error_message']);
 }
 
-if (isset($_GET['clear_filter'])){
-    unset($_SESSION['users']['filter_value']['posts']);
+if (!isset($_GET['filter'])){
+    unset($_SESSION['users']['filter']);
 }
 
 if (isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
@@ -38,7 +39,7 @@ if (isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $posts = new Blogs($pdo);
             if(isset($_GET['filter'])){
-                $results = $posts->filterByAttributes($_SESSION['users']['filter']['posts']);
+                $results = $posts->filterByAttributes($_SESSION['users']['filter']['filter_array']);
             }else {
                 $results = $posts->filterByAttributes([[
                     Blogs::AUTHOR_ID,
@@ -92,6 +93,19 @@ if (isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
 <?php include_once '../header.php'?>
 
 <div class="popup">
+    <div class="popuptext" id="popupContent">
+        <div id="myPopup"><h1>Error message</h1><a href="list.php?clear_mess=true">x</a></div>
+        <div>
+            <?php
+            if($error){
+                echo "<p>".$error."</p>";
+            }
+            ?>
+        </div>
+    </div>
+</div>
+
+<div class="popup">
     <div class="popuptextSuccess" id="popupContentSuccess">
         <div id="myPopupSuccess"><h1>Message</h1><a href="list.php?clear_mess=true">x</a></div>
         <div>
@@ -123,13 +137,20 @@ if (isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
     <div class="filter_form">
         <form action="/blog/controller/post/filter.php" method="post">
             <div class="filter_value my_list_posts">
+                <input type="hidden" value="<?= $_SESSION['users']['user_id'] ?? '' ?>" name="author_id">
                 <div>
                     <label for="post_id">Post IDs:</label>
-                    <input type="text" value="<?= $_SESSION['users']['filter_value']['posts']['post_id'] ?? '' ?>" id="post_id" name="post_id">
+                    <input type="text" value="<?= $_SESSION['users']['filter']['post_id'] ?? '' ?>" id="post_id" name="post_id">
+                </div>
+                <div>
+                    <p>OR</p>
                 </div>
                 <div>
                     <label for="title">Title:</label>
-                    <input type="text" value="<?= $_SESSION['users']['filter_value']['posts']['title'] ?? '' ?>" id="title" name="title">
+                    <input type="text" value="<?= $_SESSION['users']['filter']['title'] ?? '' ?>" id="title" name="title">
+                </div>
+                <div>
+                    <p>AND</p>
                 </div>
                 <div>
                     <label for="status">Status:</label>
@@ -148,7 +169,7 @@ if (isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
                 if(isset($_GET['filter'])){
                     echo '
                         <div class="clear_filter">
-                            <a href="list.php?clear_filter=true">Clear Filter</a>
+                            <a href="list.php">Clear Filter</a>
                         </div>
                         ';
                 }
@@ -266,6 +287,23 @@ if (isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
     if (mess === "1"){
         const popup = document.getElementById("popupContentSuccess");
         popup.style.visibility = "visible";
+    }
+
+    const error =  "<?= !empty($error) ? 1 : 0 ?>" ;
+    if (error === "1"){
+        const popup = document.getElementById("popupContent");
+        popup.style.visibility = "visible";
+    }
+
+    const temp = value = "<?= $_SESSION['users']['filter']['status'] ?? '' ?>" ;
+    const mySelect = document.getElementById('status');
+    if (temp !== null){
+        for (let i in mySelect) {
+            if (mySelect[i].value === temp) {
+                mySelect.selectedIndex = i;
+                break;
+            }
+        }
     }
 </script>
 

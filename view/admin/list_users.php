@@ -25,7 +25,7 @@ if (isset($_GET['clear_mess'])){
     unset($_SESSION['admin']['users']['message']);
 }
 
-if (isset($_GET['clear_filter'])){
+if (!isset($_GET['filter'])){
     unset($_SESSION['admin']['filter_value']['users']);
 }
 
@@ -143,12 +143,21 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
                     <input type="text" value="<?= $_SESSION['admin']['filter_value']['users']['user_id'] ?? '' ?>" id="user_id" name="user_id">
                 </div>
                 <div>
+                    <p>OR</p>
+                </div>
+                <div>
                     <label for="name">Name:</label>
                     <input type="text" value="<?= $_SESSION['admin']['filter_value']['users']['name'] ?? '' ?>" id="name" name="name">
                 </div>
                 <div>
+                    <p>OR</p>
+                </div>
+                <div>
                     <label for="username">Username:</label>
                     <input type="text" value="<?= $_SESSION['admin']['filter_value']['users']['username'] ?? '' ?>" id="username" name="username">
+                </div>
+                <div>
+                    <p>AND</p>
                 </div>
                 <div>
                     <label for="status">Status:</label>
@@ -167,7 +176,7 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
                 if(isset($_GET['filter'])){
                     echo '
                         <div class="clear_filter">
-                            <a href="list_users.php?clear_filter=true">Clear Filter</a>
+                            <a href="list_users.php">Clear Filter</a>
                         </div>
                         ';
                 }

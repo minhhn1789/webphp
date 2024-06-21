@@ -567,6 +567,8 @@ img {
 .filter_value{
   display: inline-flex;
   align-items: center;
+  width: 100%;
+  flex-wrap: wrap
 }
 
 .filter_button{
@@ -581,11 +583,7 @@ img {
   margin-right: 1em;
 }
 
-.filter_value.my_list_posts{
-  width: 100%;
-}
-
-.filter_value.my_list_posts div{
+.filter_value div{
   margin: auto;
 }
 

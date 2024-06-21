@@ -25,7 +25,7 @@ if (isset($_GET['clear_mess'])){
     unset($_SESSION['admin']['admin']['message']);
 }
 
-if (isset($_GET['clear_filter'])){
+if (!isset($_GET['filter'])){
     unset($_SESSION['admin']['filter_value']['admin']);
 }
 
@@ -143,12 +143,21 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
                     <input type="text" value="<?= $_SESSION['admin']['filter_value']['admin']['user_id'] ?? '' ?>" id="user_id" name="user_id">
                 </div>
                 <div>
+                    <p>OR</p>
+                </div>
+                <div>
                     <label for="name">Name:</label>
                     <input type="text" value="<?= $_SESSION['admin']['filter_value']['admin']['name'] ?? '' ?>" id="name" name="name">
                 </div>
                 <div>
+                    <p>OR</p>
+                </div>
+                <div>
                     <label for="username">Username:</label>
                     <input type="text" value="<?= $_SESSION['admin']['filter_value']['admin']['username'] ?? '' ?>" id="username" name="username">
+                </div>
+                <div>
+                    <p>AND</p>
                 </div>
                 <div>
                     <label for="status">Status:</label>

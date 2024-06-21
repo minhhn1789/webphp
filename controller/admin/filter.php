@@ -16,17 +16,17 @@ try{
             if($_POST['type'] == 'posts'){
                 $postIds = explode(',',$_POST['post_id']);
                 if($_POST['post_id']){
-                    $combine = (!empty($_POST['title']) || !empty($_POST['author']) || !empty($_POST['status'])) ? 'OR' : null;
+                    $combine = (!empty($_POST['title']) || !empty($_POST['author'])) ? 'OR' : ') AND';
                     if(count($postIds) > 1){
                         $filter_array[] = [
-                            Blogs::TABLE.'.'.Blogs::ID,
+                            '(' . Blogs::TABLE.'.'.Blogs::ID,
                             "IN",
                             "(".$_POST['post_id'].")",
                             $combine
                         ];
                     }else{
                         $filter_array[] = [
-                            Blogs::TABLE.'.'.Blogs::ID,
+                            '(' . Blogs::TABLE.'.'.Blogs::ID,
                             "=",
                             $_POST['post_id'],
                             $combine
@@ -34,29 +34,41 @@ try{
                     }
                 }
                 if($_POST['title']){
-                    $combine = (!empty($_POST['author']) || !empty($_POST['status'])) ? 'OR' : null;
+                    $combine = (!empty($_POST['author'])) ? 'OR' : ') AND';
                     $filter_array[] = [
-                        Blogs::TITLE,
+                        (!empty($_POST['post_id'])) ? Blogs::TITLE : ('('. Blogs::TITLE),
                         "LIKE",
                         "'%".$_POST['title']."%'",
                         $combine
                     ];
                 }
                 if($_POST['author']){
-                    $combine = (!empty($_POST['status'])) ? 'OR' : null;
                     $filter_array[] = [
-                        'users.full_name',
+                        (!empty($_POST['post_id']) || !empty($_POST['title'])) ? 'users.full_name' : '( users.full_name',
                         "LIKE",
                         "'%".$_POST['author']."%'",
-                        $combine
+                        ') AND'
                     ];
                 }
                 if($_POST['status']){
                     $filter_array[] = [
                         Blogs::TABLE.'.'.Blogs::STATUS,
-                        "LIKE",
+                        "=",
                         "'".$_POST['status']."'",
                         null
+                    ];
+                }else{
+                    $filter_array[] = [
+                        '(' . Blogs::TABLE.'.'.Blogs::STATUS,
+                        "=",
+                        "'".Blogs::STATUS_ACTIVE."'",
+                        'OR'
+                    ];
+                    $filter_array[] = [
+                        Blogs::TABLE.'.'.Blogs::STATUS,
+                        "=",
+                        "'".Blogs::STATUS_INACTIVE."'",
+                        ')'
                     ];
                 }
                 if(empty($filter_array)){
@@ -72,17 +84,17 @@ try{
             }else{
                 $postIds = explode(',', $_POST['user_id']);
                 if ($_POST['user_id']) {
-                    $combine = (!empty($_POST['name']) || !empty($_POST['username']) || !empty($_POST['status'])) ? 'OR' : 'AND';
+                    $combine = (!empty($_POST['name']) || !empty($_POST['username']) || !empty($_POST['status'])) ? 'OR' : ') AND';
                     if (count($postIds) > 1) {
                         $filter_array[] = [
-                            Users::TABLE . '.' . Users::ID,
+                            '(' . Users::TABLE . '.' . Users::ID,
                             "IN",
                             "(" . $_POST['user_id'] . ")",
                             $combine
                         ];
                     } else {
                         $filter_array[] = [
-                            Users::TABLE . '.' . Users::ID,
+                            '(' . Users::TABLE . '.' . Users::ID,
                             "=",
                             $_POST['user_id'],
                             $combine
@@ -90,21 +102,20 @@ try{
                     }
                 }
                 if ($_POST['name']) {
-                    $combine = (!empty($_POST['username']) || !empty($_POST['status'])) ? 'OR' : 'AND';
+                    $combine = (!empty($_POST['username'])) ? 'OR' : ') AND';
                     $filter_array[] = [
-                        Users::FULL_NAME,
+                        !empty($_POST['user_id']) ? Users::FULL_NAME : ('(' . Users::FULL_NAME),
                         "LIKE",
                         "'%" . $_POST['name'] . "%'",
                         $combine
                     ];
                 }
                 if ($_POST['username']) {
-                    $combine = (!empty($_POST['status'])) ? 'OR' : 'AND';
                     $filter_array[] = [
-                        Accounts::USERNAME,
+                        (!empty($_POST['user_id']) || !empty($_POST['name'])) ? Accounts::USERNAME : ('(' . Accounts::USERNAME),
                         "LIKE",
                         "'%" . $_POST['username'] . "%'",
-                        $combine
+                        ') AND'
                     ];
                 }
                 if ($_POST['status']) {
