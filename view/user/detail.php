@@ -14,16 +14,18 @@ $email = '';
 $address = '';
 $username = '';
 $error = 'Please Login!';
+$_SESSION['users']['searchable'] = false;
+
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['error_message']);
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['users']['error_message']);
+    unset($_SESSION['users']['message']);
 }
-$message = $_SESSION['user']['message'] ?? '';
+$message = $_SESSION['users']['message'] ?? '';
 
 
-if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
+if (isset($_GET['id']) && isset($_SESSION['users']['login'])){
     try {
-        if($_SESSION['user']['login']) {
+        if($_SESSION['users']['login']) {
             $pdo = new Database();
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -36,7 +38,7 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
             $email = $user->getEmail();
             $address = $user->getAddress();
             $username = $user->getUsername();
-            $error = $_SESSION['user']['error_message'] ?? '';
+            $error = $_SESSION['users']['error_message'] ?? '';
         }
     } catch (Exception $e) {
         $error = 'Can not get user information: '.  $e->getMessage();
@@ -103,8 +105,8 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
         <div id="myPopupSuccess"><h1>Message</h1><a href="detail.php?id=<?= $id ?>&clear_mess=true">x</a></div>
         <div>
             <?php
-            if(isset($_SESSION['user']['message'])){
-                echo "<p>".$_SESSION['user']['message']."</p>";
+            if(isset($_SESSION['users']['message'])){
+                echo "<p>".$_SESSION['users']['message']."</p>";
             }
             ?>
         </div>
@@ -279,12 +281,6 @@ if (isset($_GET['id']) && isset($_SESSION['user']['login'])){
     if (error === "1"){
         const popup = document.getElementById("popupContent");
         popup.style.visibility = "visible";
-    }
-
-    const login = <?= isset($_SESSION['user']['login']) ? 1 : 0?>;
-    if(login === 0) {
-        const saveButton = document.getElementById("save_form_button");
-        saveButton.disabled = true;
     }
 </script>
 

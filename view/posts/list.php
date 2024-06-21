@@ -10,6 +10,8 @@ use model\Blogs;
 $author_id = '';
 $username = 'User';
 $error = 'Please Login!';
+$_SESSION['users']['searchable'] = false;
+
 $results = [];
 $default_number_posts = 5;
 $total_page = 1;
@@ -19,26 +21,33 @@ $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
 
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['users']['message']);
 }
 
+if (isset($_GET['clear_filter'])){
+    unset($_SESSION['users']['filter_value']['posts']);
+}
 
-if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
+if (isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
     try {
-        if($_SESSION['user']['login']) {
-            $author_id = $_SESSION['user']['user_id'];
-            $username = $_SESSION['user']['name'];
+        if($_SESSION['users']['login']) {
+            $author_id = $_SESSION['users']['user_id'];
+            $username = $_SESSION['users']['name'];
             $pdo = new Database();
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $posts = new Blogs($pdo);
-            $results = $posts->filterByAttributes([[
-                Blogs::AUTHOR_ID,
-                "=",
-                "'".$_SESSION['user']['user_id']."'",
-                null
-            ]]);
-            $total_page = floor(count($results) / $default_number_posts);
+            if(isset($_GET['filter'])){
+                $results = $posts->filterByAttributes($_SESSION['users']['filter']['posts']);
+            }else {
+                $results = $posts->filterByAttributes([[
+                    Blogs::AUTHOR_ID,
+                    "=",
+                    "'".$_SESSION['users']['user_id']."'",
+                    null
+                ]]);
+            }
+            $total_page = count($results) ? floor(count($results) / $default_number_posts) : $total_page;
             $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
         }
     } catch (Exception $e) {
@@ -87,8 +96,8 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
         <div id="myPopupSuccess"><h1>Message</h1><a href="list.php?clear_mess=true">x</a></div>
         <div>
             <?php
-            if(isset($_SESSION['user']['message'])){
-                echo "<p>".$_SESSION['user']['message']."</p>";
+            if(isset($_SESSION['users']['message'])){
+                echo "<p>".$_SESSION['users']['message']."</p>";
             }
             ?>
         </div>
@@ -101,7 +110,7 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="page-heading">
-                    <h1>List Post</h1>
+                    <h1>List Posts</h1>
                     <hr class="small">
                 </div>
             </div>
@@ -111,14 +120,53 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
 
 <!-- Main Content -->
 <div class="container">
+    <div class="filter_form">
+        <form action="/blog/controller/post/filter.php" method="post">
+            <div class="filter_value my_list_posts">
+                <div>
+                    <label for="post_id">Post IDs:</label>
+                    <input type="text" value="<?= $_SESSION['users']['filter_value']['posts']['post_id'] ?? '' ?>" id="post_id" name="post_id">
+                </div>
+                <div>
+                    <label for="title">Title:</label>
+                    <input type="text" value="<?= $_SESSION['users']['filter_value']['posts']['title'] ?? '' ?>" id="title" name="title">
+                </div>
+                <div>
+                    <label for="status">Status:</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">--Please choose an option--</option>
+                        <option value="<?= Blogs::STATUS_ACTIVE ?>">Publish</option>
+                        <option value="<?= Blogs::STATUS_INACTIVE ?>">Hidden</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter_button my_list_posts">
+                <div>
+                    <input type="submit" value="Filter">
+                </div>
+                <?php
+                if(isset($_GET['filter'])){
+                    echo '
+                        <div class="clear_filter">
+                            <a href="list.php?clear_filter=true">Clear Filter</a>
+                        </div>
+                        ';
+                }
+                ?>
+            </div>
+        </form>
+    </div>
+    <hr>
+
     <div class="row">
         <table class="table table-striped">
             <thead>
             <tr>
                 <th scope="col" style="width: 5%">ID</th>
-                <th scope="col" style="width: 35%">Title</th>
+                <th scope="col" style="width: 25%">Title</th>
                 <th scope="col" style="width: 20%">Created At</th>
                 <th scope="col" style="width: 20%">Updated At</th>
+                <th scope="col" style="width: 10%">Status</th>
                 <th scope="col" style="width: 20%">Action</th>
             </tr>
             </thead>
@@ -136,6 +184,7 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
                             <th class='posts_list'><a href='detail.php?id=" . $result['id'] . "'>" . $result['title'] . "</a></th>
                             <th class='posts_list'>" . $result['created_at'] . "</th>
                             <th class='posts_list'>" . $result['updated_at'] . "</th>
+                            <th class='posts_list'>" . $result['status'] . "</th>
                             <th class='posts_list'>
                             <span>
                             <a href='post.php?id=" . $result['id'] . "'>View</a> | 
@@ -213,7 +262,7 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
 <script src="../resource/js/clean-blog.min.js"></script>
 
 <script>
-    const mess =  "<?= isset($_SESSION['user']['message']) ? 1 : 0 ?>" ;
+    const mess =  "<?= isset($_SESSION['users']['message']) ? 1 : 0 ?>" ;
     if (mess === "1"){
         const popup = document.getElementById("popupContentSuccess");
         popup.style.visibility = "visible";

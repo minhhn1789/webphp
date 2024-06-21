@@ -19,7 +19,7 @@ if (isset($_GET['clear_mess'])){
     unset($_SESSION['admin']['message']);
 }
 $message = $_SESSION['admin']['message'] ?? '';
-
+$_SESSION['admin']['searchable'] = false;
 
 if (isset($_GET['id']) && isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin'])){
     try {

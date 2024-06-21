@@ -1,6 +1,6 @@
 <?php
 session_start();
-$_SESSION['user'] = [];
+$_SESSION['users'] = [];
 ini_set('display_errors', '1');
 
 include_once "../../model/database.php";
@@ -24,25 +24,25 @@ try{
         $account->getRole() == Users::ROLE_USER &&
         $account->getUserStatus() == Users::STATUS_ACTIVE){
         if (password_verify($_POST['password'], $account->getPassword())){
-            $_SESSION['user']['name'] =  $account->getUsername();
-            $_SESSION['user']['user_id'] = $account->getUserId();
-            $_SESSION['user']['login'] = TRUE;
+            $_SESSION['users']['name'] =  $account->getUsername();
+            $_SESSION['users']['user_id'] = $account->getUserId();
+            $_SESSION['users']['login'] = TRUE;
             header('Location: /blog');
             exit;
         }else{
-            $_SESSION['user']['error_mess'] =  'Incorrect password!';
+            $_SESSION['users']['error_mess'] =  'Incorrect password!';
         }
     }else if($account->getUserStatus() == Users::STATUS_INACTIVE){
-        $_SESSION['user']['error_mess'] =  'Account not active!';
+        $_SESSION['users']['error_mess'] =  'Account not active!';
     } else{
-        $_SESSION['user']['error_mess'] =  'Incorrect username!';
+        $_SESSION['users']['error_mess'] =  'Incorrect username!';
     }
-    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+    $_SESSION['users'] = array_merge($_SESSION['users'], $_POST);
     header('Location: ../../view/login.php');
     exit;
 } catch (Exception $e){
-    $_SESSION['user']['error_mess'] =  'Cannot login cause:' . $e->getMessage();
-    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+    $_SESSION['users']['error_mess'] =  'Cannot login cause:' . $e->getMessage();
+    $_SESSION['users'] = array_merge($_SESSION['users'], $_POST);
     header('Location: ../../view/login.php');
     exit;
 }

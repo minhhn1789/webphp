@@ -5,7 +5,16 @@ include_once "model/blogs.php";
 session_start();
 use model\Database;
 use model\Blogs;
+
+$error = $_SESSION['users']['error_message'] ?? '';
 $results = [];
+$_SESSION['users']['searchable'] = true;
+if (isset($_GET['clear_mess'])){
+    unset($_SESSION['users']['error_message']);
+}
+if(!isset($_GET['search'])){
+    unset($_SESSION['users']['search']);
+}
 $default_number_posts = 5;
 $total_page = 1;
 try {
@@ -17,18 +26,22 @@ try {
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $posts = new Blogs($pdo);
-    $results = $posts->filterByAttributes([[
-        Blogs::TABLE.".".Blogs::STATUS,
-        "=",
-        "'".Blogs::STATUS_ACTIVE."'",
-        null
-    ]]);
-    $total_page = floor(count($results) / $default_number_posts);
+    if(isset($_GET['search']) && !empty($_SESSION['users']['search']['filter'])){
+        $results = $posts->filterByAttributes($_SESSION['users']['search']['filter']);
+    }else {
+        $results = $posts->filterByAttributes([[
+            Blogs::TABLE . "." . Blogs::STATUS,
+            "=",
+            "'" . Blogs::STATUS_ACTIVE . "'",
+            null
+        ]]);
+    }
+    $total_page = count($results) ? floor(count($results) / $default_number_posts) : $total_page;
     $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
 } catch (Exception $e) {
-    $error = 'Can not get post information: '.  $e->getMessage();
+    $error = 'Can not get post cause: '.  $e->getMessage();
 }
-
+//show error message
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,6 +78,19 @@ try {
 
 <?php include_once 'view/header.php'?>
 
+<div class="popup">
+    <div class="popuptext" id="popupContent">
+        <div id="myPopup"><h1>Error message</h1><a href="index.php?clear_mess=true">x</a></div>
+        <div>
+            <?php
+            if($error){
+                echo "<p>".$error."</p>";
+            }
+            ?>
+        </div>
+    </div>
+</div>
+
 <!-- Page Header -->
 <!-- Set your background image for this header on the line below. -->
 <header class="intro-header">
@@ -87,17 +113,18 @@ try {
         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
             <?php
             if(!empty($results)){
-                foreach ($results as $key => $result){
-                    if($key > $end){
-                        break;
-                    }
-                    if( $start <= $key && $key < $end) {
-                        if (strlen($result['content']) > 50) {
-                            $shortDes = substr($result['content'], 0, 50) . "...";
-                        } else {
-                            $shortDes = $result['content'];
+                if(count($results)) {
+                    foreach ($results as $key => $result) {
+                        if ($key > $end) {
+                            break;
                         }
-                        echo "
+                        if ($start <= $key && $key < $end) {
+                            if (strlen($result['content']) > 50) {
+                                $shortDes = substr($result['content'], 0, 50) . "...";
+                            } else {
+                                $shortDes = $result['content'];
+                            }
+                            echo "
                         <div class='post-preview'>
                             <a href='view/posts/post.php?id=" . $result['id'] . "'>
                                 <h2 class='post-title'>
@@ -110,20 +137,36 @@ try {
                             <p class='post-meta'>Posted by <a href='view/posts/list_by_author.php?author_id=" . $result['author_id'] . "'>" . $result['full_name'] . "</a> at " . $result['updated_at'] . "</p>
                                 </div>
                         <hr> ";
+                        }
                     }
                 }
+            }else{
+                echo "
+                        <div class='post-preview' style='text-align: center'>
+                            <h3>No result</h3>
+                        </div>";
             }
             ?>
 
             <!-- Pager -->
             <ul class="pager">
                 <?php
-                if($page > 1){
-                    echo '<li class="next previous"><a href="/blog/?page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
-                }
-                echo '<li>'.$page.'/'.$total_page.'</li>';
-                if ($total_page > $page){
-                    echo '<li class="next"><a href="/blog/?page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
+                if(isset($_GET['search'])){
+                    if($page > 1){
+                        echo '<li class="next previous"><a href="/blog/?search=true&page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
+                    }
+                    echo '<li>'.$page.'/'.$total_page.'</li>';
+                    if ($total_page > $page){
+                        echo '<li class="next"><a href="/blog/?search=true&page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
+                    }
+                }else{
+                    if($page > 1){
+                        echo '<li class="next previous"><a href="/blog/?page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
+                    }
+                    echo '<li>'.$page.'/'.$total_page.'</li>';
+                    if ($total_page > $page){
+                        echo '<li class="next"><a href="/blog/?page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
+                    }
                 }
                 ?>
             </ul>
@@ -170,6 +213,13 @@ try {
     </div>
 </footer>
 
+<script>
+    const error =  "<?= !empty($error) ? 1 : 0 ?>" ;
+    if (error === "1"){
+        const popup = document.getElementById("popupContent");
+        popup.style.visibility = "visible";
+    }
+</script>
 <!-- jQuery -->
 <script src="view/resource/vendor/jquery/jquery.min.js"></script>
 

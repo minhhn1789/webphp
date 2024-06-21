@@ -1,7 +1,7 @@
 <?php
 ini_set('display_errors', '1');
 session_start();
-$_SESSION['user'] = [];
+$_SESSION['users'] = [];
 
 include_once "../../model/database.php";
 include_once "../../model/check.php";
@@ -29,8 +29,8 @@ try{
         );
         $err = $check->checkAll()->getErrorMessage();
         if(!empty($err)){
-            $_SESSION['user']['error_message'] =  $err;
-            $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+            $_SESSION['users']['error_message'] =  $err;
+            $_SESSION['users'] = array_merge($_SESSION['users'], $_POST);
             header('Location: ../../view/register.php');
             exit;
         }
@@ -52,21 +52,21 @@ try{
                 throw new Exception("Cannot create user!");
             }
         }catch (Exception $e){
-            $_SESSION['user']['error_message'][] = 'Can not create new account caught exception: '.  $e->getMessage(). "\n";
-            $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+            $_SESSION['users']['error_message'][] = 'Can not create new account caught exception: '.  $e->getMessage(). "\n";
+            $_SESSION['users'] = array_merge($_SESSION['users'], $_POST);
             header('Location: ../../view/register.php');
             exit;
         }
 
-        $_SESSION['user']['register'][] = 'Create account successful!';
-        $_SESSION['user']['register'][] = $_POST['username'];
+        $_SESSION['users']['register'][] = 'Create account successful!';
+        $_SESSION['users']['register'][] = $_POST['username'];
         header('Location: ../../view/login.php');
         exit;
 
     }
 } catch (Exception $e) {
-    $_SESSION['user']['error_message'][] = $e->getMessage();
-    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+    $_SESSION['users']['error_message'][] = $e->getMessage();
+    $_SESSION['users'] = array_merge($_SESSION['users'], $_POST);
     header('Location: ../../view/register.php');
     exit;
 }

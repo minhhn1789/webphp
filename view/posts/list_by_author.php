@@ -12,7 +12,9 @@ use model\Users;
 $author_name = '';
 $user_id = '';
 $username = 'User';
-$error = '';
+$error = $_SESSION['users']['error_message'] ?? '';
+$_SESSION['users']['searchable'] = true;
+
 $results = [];
 $default_number_posts = 5;
 $total_page = 1;
@@ -22,29 +24,34 @@ $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
 
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['error_message']);
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['users']['error_message']);
 }
-$message = $_SESSION['user']['message'] ?? '';
 
+if(!isset($_GET['search'])){
+    unset($_SESSION['users']['search']);
+}
 
 if (isset($_GET['author_id'])){
     try {
-            $user_id = $_SESSION['user']['user_id'] ?? '';
-            $username = $_SESSION['user']['name'] ?? '';
+            $user_id = $_SESSION['users']['user_id'] ?? '';
+            $username = $_SESSION['users']['name'] ?? '';
             $pdo = new Database();
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $author = Users::getById($pdo, $_GET['author_id']);
             $author_name = $author->getFullName();
             $posts = new Blogs($pdo);
-            $results = $posts->filterByAttributes([[
-                Blogs::AUTHOR_ID,
-                "=",
-                "'".$_GET['author_id']."'",
-                null
-            ]]);
-            $total_page = floor(count($results) / $default_number_posts);
+            if(isset($_GET['search']) && !empty($_SESSION['users']['search']['filter'])){
+                $results = $posts->filterByAttributes($_SESSION['users']['search']['filter']);
+            }else {
+                $results = $posts->filterByAttributes([[
+                    Blogs::AUTHOR_ID,
+                    "=",
+                    "'" . $_GET['author_id'] . "'",
+                    null
+                ]]);
+            }
+            $total_page = count($results) ? floor(count($results) / $default_number_posts) : $total_page;
             $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
     } catch (Exception $e) {
         $error = 'Can not get list posts: '.  $e->getMessage();
@@ -87,6 +94,18 @@ if (isset($_GET['author_id'])){
 
 <?php include_once '../header.php'?>
 
+<div class="popup">
+    <div class="popuptext" id="popupContent">
+        <div id="myPopup"><h1>Error message</h1><a href="index.php?clear_mess=true">x</a></div>
+        <div>
+            <?php
+            if($error){
+                echo "<p>".$error."</p>";
+            }
+            ?>
+        </div>
+    </div>
+</div>
 
 <!-- Page Header -->
 <header class="intro-header">
@@ -135,18 +154,33 @@ if (isset($_GET['author_id'])){
                     ";
                     }
                 }
+            }else{
+                echo "
+                        <div class='post-preview' style='text-align: center'>
+                            <h3>No result</h3>
+                        </div>";
             }
             ?>
 
             <!-- Pager -->
             <ul class="pager">
                 <?php
-                if($page > 1){
-                    echo '<li class="next previous"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
-                }
-                echo '<li>'.$page.'/'.$total_page.'</li>';
-                if ($total_page > $page){
-                    echo '<li class="next"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
+                if(isset($_GET['search'])){
+                    if($page > 1){
+                        echo '<li class="next previous"><a href="list_by_author.php?search=true&author_id=' . $_GET['author_id'] . '&page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
+                    }
+                    echo '<li>'.$page.'/'.$total_page.'</li>';
+                    if ($total_page > $page){
+                        echo '<li class="next"><a href="list_by_author.php?search=true&author_id=' . $_GET['author_id'] . '&page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
+                    }
+                }else{
+                    if($page > 1){
+                        echo '<li class="next previous"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page - 1) . '">&larr; Newer Posts</a></li>';
+                    }
+                    echo '<li>'.$page.'/'.$total_page.'</li>';
+                    if ($total_page > $page){
+                        echo '<li class="next"><a href="list_by_author.php?author_id=' . $_GET['author_id'] . '&page=' . ($page + 1) . '">Older Posts &rarr;</a> </li>';
+                    }
                 }
                 ?>
             </ul>
@@ -192,6 +226,14 @@ if (isset($_GET['author_id'])){
         </div>
     </div>
 </footer>
+
+<script>
+    const error =  "<?= !empty($error) ? 1 : 0 ?>" ;
+    if (error === "1"){
+        const popup = document.getElementById("popupContent");
+        popup.style.visibility = "visible";
+    }
+</script>
 
 <!-- jQuery -->
 <script src="../resource/vendor/jquery/jquery.min.js"></script>

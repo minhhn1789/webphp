@@ -3,7 +3,7 @@ session_start();
 ini_set('display_errors', '1');
 if(isset($_GET['clear_mess'])){
     if($_GET['clear_mess']){
-        unset($_SESSION['user']);
+        unset($_SESSION['users']);
     }
 }
 ?>
@@ -19,8 +19,8 @@ if(isset($_GET['clear_mess'])){
                 <div id="myPopup"><h1>Message</h1><a href="login.php?clear_mess=true">x</a></div>
                 <div>
                         <?php
-                        if(isset($_SESSION['user']['register'])){
-                            echo "<h1>".$_SESSION['user']['register'][0]."</h1>";
+                        if(isset($_SESSION['users']['register'])){
+                            echo "<h1>".$_SESSION['users']['register'][0]."</h1>";
                         }
                         ?>
                 </div>
@@ -29,8 +29,8 @@ if(isset($_GET['clear_mess'])){
                 <div id="errorPopup"><h1>Message Error</h1><a href="login.php?clear_mess=true">x</a></div>
                 <div>
                     <?php
-                    if(isset($_SESSION['user']['error_mess'])){
-                        echo "<h1>".$_SESSION['user']['error_mess']."</h1>";
+                    if(isset($_SESSION['users']['error_mess'])){
+                        echo "<h1>".$_SESSION['users']['error_mess']."</h1>";
                     }
                     ?>
                 </div>
@@ -45,10 +45,10 @@ if(isset($_GET['clear_mess'])){
 					<i class="fas fa-user"></i>
 				</label>
                 <?php
-                    if(isset($_SESSION['user']['error_mess'])){
-                        echo "<input type='text' value=". $_SESSION['user']['username'] ." name='username' placeholder='Username' id='username' required>";
-                    }else if(isset($_SESSION['user']['register'][1])){
-                        echo "<input type='text' value=". $_SESSION['user']['register'][1] ." name='username' placeholder='Username' id='username' required>";
+                    if(isset($_SESSION['users']['error_mess'])){
+                        echo "<input type='text' value=". $_SESSION['users']['username'] ." name='username' placeholder='Username' id='username' required>";
+                    }else if(isset($_SESSION['users']['register'][1])){
+                        echo "<input type='text' value=". $_SESSION['users']['register'][1] ." name='username' placeholder='Username' id='username' required>";
                     }else{
                         echo "<input type='text' name='username' placeholder='Username' id='username' required>";
                     }
@@ -56,7 +56,7 @@ if(isset($_GET['clear_mess'])){
 				<label for="password">
 					<i class="fas fa-lock"></i>
 				</label>
-				<input type="password" value="<?= $_SESSION['user']['password'] ?? '' ?>" name="password" placeholder="Password" id="password" required>
+				<input type="password" value="<?= $_SESSION['users']['password'] ?? '' ?>" name="password" placeholder="Password" id="password" required>
 				<button type="submit" form="form_login" value="Login" class="button-82-pushable" role="button">
 					<span class="button-82-shadow"></span>
 					<span class="button-82-edge"></span>
@@ -79,8 +79,8 @@ if(isset($_GET['clear_mess'])){
 			</form>
 		</div>
         <script>
-            const mess =  "<?= isset($_SESSION['user']['register']) ? 1 : 0 ?>" ;
-            const mess_err =  "<?= isset($_SESSION['user']['error_mess']) ? 1 : 0 ?>" ;
+            const mess =  "<?= isset($_SESSION['users']['register']) ? 1 : 0 ?>" ;
+            const mess_err =  "<?= isset($_SESSION['users']['error_mess']) ? 1 : 0 ?>" ;
             if (mess === "1"){
                 const popup = document.getElementById("popupContent");
                 popup.style.visibility = "visible";

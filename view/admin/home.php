@@ -16,6 +16,7 @@ $total_page = 1;
 $page = $_GET['page'] ?? 1;
 $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
+$_SESSION['admin']['searchable'] = false;
 
 if (isset($_GET['clear_mess'])){
     unset($_SESSION['admin']['error_message']);
@@ -44,7 +45,7 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
                     null
                 ]]);
             }
-            $total_page = floor(count($results) / $default_number_posts);
+            $total_page = count($results) ? floor(count($results) / $default_number_posts) : $total_page;
             $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
         }
     } catch (Exception $e) {

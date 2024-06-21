@@ -15,23 +15,25 @@ $content = '';
 $image = '';
 $error = 'Please Login!';
 $id = '';
+$_SESSION['users']['searchable'] = false;
+
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['error_message']);
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['users']['error_message']);
+    unset($_SESSION['users']['message']);
 }
-$message = $_SESSION['user']['message'] ?? '';
+$message = $_SESSION['users']['message'] ?? '';
 
 
-if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
+if (isset($_GET['id']) && isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
     try {
-        if($_SESSION['user']['login']) {
+        if($_SESSION['users']['login']) {
             $pdo = new Database();
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $post = Blogs::getById($pdo, $_GET['id']);
-            $username = $_SESSION['user']['name'];
-            $error = $_SESSION['user']['error_message'] ?? '';
-            if($_SESSION['user']['user_id'] == $post->getAuthorId()){
+            $username = $_SESSION['users']['name'];
+            $error = $_SESSION['users']['error_message'] ?? '';
+            if($_SESSION['users']['user_id'] == $post->getAuthorId()){
                 $id = $post->getId();
                 $author_id = $post->getAuthorId();
                 $title = $post->getTitle();
@@ -39,7 +41,7 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
                 $image = $post->getImagePath();
                 $status = $post->getStatus();
             }else{
-                $error = 'Can not get post with user id: '.$_SESSION['user']['user_id'];
+                $error = 'Can not get post with user id: '.$_SESSION['users']['user_id'];
             }
         }
     } catch (Exception $e) {
@@ -108,8 +110,8 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
         <div id="myPopupSuccess"><h1>Message</h1><a href="create.php?clear_mess=true">x</a></div>
         <div>
             <?php
-            if(isset($_SESSION['user']['message'])){
-                echo "<p>".$_SESSION['user']['message']."</p>";
+            if(isset($_SESSION['users']['message'])){
+                echo "<p>".$_SESSION['users']['message']."</p>";
             }
             ?>
         </div>
@@ -270,7 +272,7 @@ if (isset($_GET['id']) && isset($_SESSION['user']['user_id']) && isset($_SESSION
         popup.style.visibility = "visible";
     }
 
-    const login = <?= isset($_SESSION['user']['login']) ? 1 : 0?>;
+    const login = <?= isset($_SESSION['users']['login']) ? 1 : 0?>;
     if(login === 0) {
         const saveButton = document.getElementById("save_form_button");
         saveButton.disabled = true;

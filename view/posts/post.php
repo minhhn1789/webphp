@@ -14,20 +14,22 @@ $user_id = '';
 $author_id = '';
 $username = 'User';
 $error = 'Please Login!';
+$_SESSION['users']['searchable'] = false;
+
 $title = '';
 $content = '';
 $updated_at = '';
 if (isset($_GET['clear_mess'])){
-    unset($_SESSION['user']['error_message']);
-    unset($_SESSION['user']['message']);
+    unset($_SESSION['users']['error_message']);
+    unset($_SESSION['users']['message']);
 }
-$message = $_SESSION['user']['message'] ?? '';
+$message = $_SESSION['users']['message'] ?? '';
 
 
 if (isset($_GET['id'])){
     try {
-        $user_id = $_SESSION['user']['user_id'] ?? '';
-        $username = $_SESSION['user']['name'] ?? '';
+        $user_id = $_SESSION['users']['user_id'] ?? '';
+        $username = $_SESSION['users']['name'] ?? '';
         $pdo = new Database();
         $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

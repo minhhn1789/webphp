@@ -13,23 +13,24 @@ $status = '';
 $title = '';
 $content = '';
 $error = '';
+$_SESSION['users']['searchable'] = false;
 
 if (isset($_GET['clear_mess'])){
-    $_SESSION['user']['error_message'] = '';
+    $_SESSION['users']['error_message'] = '';
     $_SESSION['message'] = '';
 }
-$message = $_SESSION['user']['message'] ?? '';
+$message = $_SESSION['users']['message'] ?? '';
 
 
-if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
+if (isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
     try {
-        if($_SESSION['user']['login']) {
-            $author_id = $_SESSION['user']['user_id'];
-            $username = $_SESSION['user']['name'];
-            $title = $_SESSION['user']['title'] ?? '';
-            $content = $_SESSION['user']['content'] ?? '';
-            $status = $_SESSION['user']['status'] ?? '';
-            $error = $_SESSION['user']['error_message'] ?? '';
+        if($_SESSION['users']['login']) {
+            $author_id = $_SESSION['users']['user_id'];
+            $username = $_SESSION['users']['name'];
+            $title = $_SESSION['users']['title'] ?? '';
+            $content = $_SESSION['users']['content'] ?? '';
+            $status = $_SESSION['users']['status'] ?? '';
+            $error = $_SESSION['users']['error_message'] ?? '';
         }
     } catch (Exception $e) {
         $error = 'Something wrong when load: '.  $e->getMessage();
@@ -96,8 +97,8 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
         <div id="myPopupSuccess"><h1>Message</h1><a href="create.php?clear_mess=true">x</a></div>
         <div>
             <?php
-            if(isset($_SESSION['user']['message'])){
-                echo "<p>".$_SESSION['user']['message']."</p>";
+            if(isset($_SESSION['users']['message'])){
+                echo "<p>".$_SESSION['users']['message']."</p>";
             }
             ?>
         </div>
@@ -250,7 +251,7 @@ if (isset($_SESSION['user']['user_id']) && isset($_SESSION['user']['login'])){
         popup.style.visibility = "visible";
     }
 
-    const login = <?= isset($_SESSION['user']['login']) ? 1 : 0?>;
+    const login = <?= isset($_SESSION['users']['login']) ? 1 : 0?>;
     if(login === 0) {
         const saveButton = document.getElementById("save_form_button");
         saveButton.disabled = true;

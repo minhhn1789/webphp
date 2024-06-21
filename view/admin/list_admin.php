@@ -11,6 +11,7 @@ $admin_id = '';
 $username = 'Admin';
 $error = '';
 $results = [];
+$_SESSION['admin']['searchable'] = false;
 
 $default_number_posts = 5;
 $total_page = 1;
@@ -21,6 +22,7 @@ $end = $page * $default_number_posts;
 
 if (isset($_GET['clear_mess'])){
     unset($_SESSION['admin']['error_message']);
+    unset($_SESSION['admin']['admin']['message']);
 }
 
 if (isset($_GET['clear_filter'])){
@@ -46,7 +48,7 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
                     null
                 ]]);
             }
-            $total_page = floor(count($results) / $default_number_posts);
+            $total_page = count($results) ? floor(count($results) / $default_number_posts) : $total_page;
             $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
         }
     } catch (Exception $e) {

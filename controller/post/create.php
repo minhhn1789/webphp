@@ -40,20 +40,20 @@ try{
                 throw new Exception("Cannot create post!");
             }
         }catch (Exception $e){
-            $_SESSION['user']['error_message'] = 'Can not create new post caught exception: '.  $e->getMessage(). "\n";
-            $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+            $_SESSION['users']['error_message'] = 'Can not create new post caught exception: '.  $e->getMessage(). "\n";
+            $_SESSION['users'] = array_merge($_SESSION['users'], $_POST);
             header('Location: /blog/view/posts/create.php');
             exit;
         }
 
-        $_SESSION['user']['message'] = 'Create post successful!';
+        $_SESSION['users']['message'] = 'Create post successful!';
         header('Location: /blog/view/posts/detail.php?id='.$post->getId());
         exit;
 
     }
 } catch (Exception $e) {
-    $_SESSION['user']['error_message'] = $e->getMessage();
-    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+    $_SESSION['users']['error_message'] = $e->getMessage();
+    $_SESSION['users'] = array_merge($_SESSION['users'], $_POST);
     header('Location: /blog/view/posts/create.php');
     exit;
 }

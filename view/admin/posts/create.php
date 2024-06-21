@@ -10,6 +10,7 @@ $status = '';
 $title = '';
 $content = '';
 $error = '';
+$_SESSION['admin']['searchable'] = false;
 
 if (isset($_GET['clear_mess'])){
     unset($_SESSION['admin']['error_message']);

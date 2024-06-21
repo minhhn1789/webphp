@@ -19,7 +19,7 @@ try{
             try {
                 $user = USERS::getById($pdo, $_POST['user_id']);
                 if(!$_POST['current_password']){
-                    $_SESSION['user']['error_message'] =  'Please enter password before save!';
+                    $_SESSION['users']['error_message'] =  'Please enter password before save!';
                 }else if (password_verify($_POST['current_password'], $user->getPassword())){
                     $check = new Check(
                         $pdo,
@@ -42,7 +42,7 @@ try{
                     }
                     $err = $check->checkAge()->checkName()->checkPhoneNumber()->getErrorMessage();
                     if (!empty($err)) {
-                        $_SESSION['user']['error_message'] = $err;
+                        $_SESSION['users']['error_message'] = $err;
                         header('Location: ../../view/user/detail.php?id='.$_POST['user_id']);
                         exit;
                     }
@@ -55,12 +55,12 @@ try{
                         ->setUsername($_POST['username'])
                         ->setPassword($_POST['new_password']);
                     $user->update();
-                    $_SESSION['user']['message'] =  'Update successful!';
+                    $_SESSION['users']['message'] =  'Update successful!';
                 }else{
-                    $_SESSION['user']['error_message'] =  'Incorrect password!';
+                    $_SESSION['users']['error_message'] =  'Incorrect password!';
                 }
             } catch (Exception $e) {
-                $_SESSION['user']['error_message'][] = 'Can not update user information caught exception: ' . $e->getMessage() . "\n";
+                $_SESSION['users']['error_message'][] = 'Can not update user information caught exception: ' . $e->getMessage() . "\n";
             }
             header('Location: ../../view/user/detail.php?id='.$_POST['user_id']);
             exit;

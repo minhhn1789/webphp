@@ -30,11 +30,11 @@ try{
                     $post->setImage($_FILES["image_upload"]);
                 }
                 $post->update();
-                $_SESSION['user']['message'] = 'Update post successful!';
+                $_SESSION['users']['message'] = 'Update post successful!';
             }elseif ($_POST['button'] == 'delete'){
                 $post = Blogs::getById($pdo,$_POST['id']);
                 $post->delete();
-                $_SESSION['user']['message'] = 'Delete post successful!';
+                $_SESSION['users']['message'] = 'Delete post successful!';
                 if($_POST['type'] == 'admin'){
                     header('Location: /blog/view/admin/');
                 }else{
@@ -44,8 +44,8 @@ try{
             }
 
         }catch (Exception $e){
-            $_SESSION['user']['error_message'] = 'Can not update post cause exception: '.  $e->getMessage(). "\n";
-            $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+            $_SESSION['users']['error_message'] = 'Can not update post cause exception: '.  $e->getMessage(). "\n";
+            $_SESSION['users'] = array_merge($_SESSION['users'], $_POST);
             header('Location: /blog/view/posts/detail.php?id='.$_POST['id']);
             exit;
         }
@@ -55,8 +55,8 @@ try{
 
     }
 } catch (Exception $e) {
-    $_SESSION['user']['error_message'] = $e->getMessage();
-    $_SESSION['user'] = array_merge($_SESSION['user'], $_POST);
+    $_SESSION['users']['error_message'] = $e->getMessage();
+    $_SESSION['users'] = array_merge($_SESSION['users'], $_POST);
     header('Location: /blog/view/posts/detail.php?id='.$_POST['id']);
     exit;
 }
