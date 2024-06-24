@@ -2,4 +2,5 @@
 .DS_Store
 /uploads/*
 /uploads
+/uploads/.DS_Store
 /uploads/

@@ -148,7 +148,7 @@ if (isset($_GET['id']) && isset($_SESSION['admin']['admin_id']) && isset($_SESSI
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <div class="preview">
-                            <img id="img_preview" src="../..//uploads/<?= $image ?>" alt=""/>
+                            <img id="img_preview" src="../../../uploads/<?= $image ?>" alt=""/>
                             <label for="image_upload">Upload Image</label>
                             <input accept="image/*" type="file" id="image_upload" name="image_upload"/>
                         </div>

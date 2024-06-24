@@ -40,7 +40,7 @@ try{
                 throw new Exception("Cannot create post!");
             }
         }catch (Exception $e){
-            $_SESSION['admin']['error_message'] = 'Can not create new post caught exception: '.  $e->getMessage(). "\n";
+            $_SESSION['admin']['error_message'] = $e->getMessage(). "\n";
             $_SESSION['admin'] = array_merge($_SESSION['admin'], $_POST);
             header('Location: /blog/view/admin/posts/create.php');
             exit;

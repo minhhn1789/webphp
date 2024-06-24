@@ -20,6 +20,7 @@ $error = $_SESSION['admin']['error_message'] ?? '';
 $title = '';
 $content = '';
 $updated_at = '';
+$image = '';
 
 $message = $_SESSION['message'] ?? '';
 $_SESSION['admin']['searchable'] = false;
@@ -36,6 +37,7 @@ if (isset($_GET['id']) && isset($_SESSION['admin']['admin_id']) && isset($_SESSI
         $title = $post->getTitle();
         $content = $post->getContent();
         $updated_at = $post->getUpdatedAt();
+        $image = $post->getImagePath();
     } catch (Exception $e) {
         $error = 'Can not get list posts: '.  $e->getMessage();
     }
@@ -99,6 +101,14 @@ if (isset($_GET['id']) && isset($_SESSION['admin']['admin_id']) && isset($_SESSI
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <p><?= $content ?></p>
+                <?php
+                if(!empty($image)){
+                    echo "
+                       <div class='img_container'>
+                            <img id='img_post' src='../../../uploads/{$image}' alt='image of {$title}'/>
+                       </div>";
+                }
+                ?>
             </div>
         </div>
     </div>

@@ -166,7 +166,7 @@ class Blogs {
                 }
 
                 if (file_exists($file_path)) {
-                    throw new exception("Sorry, file already exists.");
+                    throw new exception("Sorry, file name already exists.");
                 }
 
                 if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"

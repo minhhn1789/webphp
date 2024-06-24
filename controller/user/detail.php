@@ -68,7 +68,7 @@ try{
 
     }
 } catch (Exception $e) {
-    $_SESSION['error_message'] = $e->getMessage();
+    $_SESSION['users']['error_message'] = $e->getMessage();
     header('Location: ../../view/user/detail.php?id='.$_POST['user_id']);
     exit;
 }
