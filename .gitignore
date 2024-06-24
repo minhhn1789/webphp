@@ -1,3 +1,5 @@
 /model/setting.ini
 .DS_Store
+/uploads/*
 /uploads
+/uploads/

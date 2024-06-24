@@ -149,7 +149,6 @@ class Blogs {
             $blog->_imageUpload();
         }
         $blog->save();
-//        $blog->id = $blog->pdo->lastInsertId();
         return $blog;
     }
 
@@ -159,7 +158,7 @@ class Blogs {
     private function _imageUpload(): void
     {
         try {
-            if(!empty($this->image)) {
+            if(!empty($this->getImage())) {
                 $file_path = $this->directory_file_call . self::IMAGE_UPLOAD_PATH . basename($this->image['name']);
                 $imageFileType = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
                 if (!getimagesize($this->image["tmp_name"])) {

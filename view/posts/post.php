@@ -24,6 +24,7 @@ $_SESSION['users']['searchable'] = false;
 $title = '';
 $content = '';
 $updated_at = '';
+$image = '';
 $message = $_SESSION['users']['message'] ?? '';
 
 
@@ -41,6 +42,8 @@ if (isset($_GET['id'])){
         $title = $post->getTitle();
         $content = $post->getContent();
         $updated_at = $post->getUpdatedAt();
+        $image = $post->getImagePath();
+        $error = $_SESSION['users']['error_message'] ?? '';
     } catch (Exception $e) {
         $error = 'Can not get list posts: '.  $e->getMessage();
     }
@@ -104,10 +107,20 @@ if (isset($_GET['id'])){
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <p><?= $content ?></p>
+                <?php
+                    if(!empty($image)){
+                       echo "
+                       <div class='img_container'>
+                            <img id='img_post' src='../../uploads/{$image}' alt='image of {$title}'/>
+                       </div>";
+                    }
+                ?>
+
             </div>
         </div>
     </div>
 </article>
+
 
 <hr>
 

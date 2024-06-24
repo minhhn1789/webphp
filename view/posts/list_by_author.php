@@ -53,6 +53,7 @@ if (isset($_GET['author_id'])){
             }
             $total_page = count($results) ? floor(count($results) / $default_number_posts) : $total_page;
             $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
+            $error = $_SESSION['users']['error_message'] ?? '';
     } catch (Exception $e) {
         $error = 'Can not get list posts: '.  $e->getMessage();
     }

@@ -39,6 +39,7 @@ if (isset($_GET['id']) && isset($_SESSION['users']['login'])){
             $email = $user->getEmail();
             $address = $user->getAddress();
             $username = $user->getUsername();
+            $error = '';
         }
     } catch (Exception $e) {
         $error = 'Can not get user information: '.  $e->getMessage();

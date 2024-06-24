@@ -40,6 +40,7 @@ if (isset($_GET['id']) && isset($_SESSION['users']['user_id']) && isset($_SESSIO
                 $content = $post->getContent();
                 $image = $post->getImagePath();
                 $status = $post->getStatus();
+                $error = $_SESSION['users']['error_message'] ?? '';
             }else{
                 $error = 'Can not get post with user id: '.$_SESSION['users']['user_id'];
             }
@@ -90,7 +91,7 @@ if (isset($_GET['id']) && isset($_SESSION['users']['user_id']) && isset($_SESSIO
 <!-- Set your background image for this header on the line below. -->
 <div class="popup">
     <div class="popuptext" id="popupContent">
-        <div id="myPopup"><h1>Error message</h1><a href="create.php?clear_mess=true">x</a></div>
+        <div id="myPopup"><h1>Error message</h1><a href="detail.php?id=<?= $id; ?>&&clear_mess=true">x</a></div>
         <div>
             <?php
             if(is_array($error)){
@@ -107,7 +108,7 @@ if (isset($_GET['id']) && isset($_SESSION['users']['user_id']) && isset($_SESSIO
 
 <div class="popup">
     <div class="popuptextSuccess" id="popupContentSuccess">
-        <div id="myPopupSuccess"><h1>Message</h1><a href="create.php?clear_mess=true">x</a></div>
+        <div id="myPopupSuccess"><h1>Message</h1><a href="detail.php?id=<?= $id; ?>&&clear_mess=true">x</a></div>
         <div>
             <?php
             if(isset($_SESSION['users']['message'])){
@@ -154,7 +155,7 @@ if (isset($_GET['id']) && isset($_SESSION['users']['user_id']) && isset($_SESSIO
                 <div class="row control-group">
                     <div class="form-group col-xs-12 floating-label-form-group-value controls">
                         <div class="preview">
-                            <img id="img_preview" src="../..//uploads/<?= $image ?>" alt=""/>
+                            <img id="img_preview" src="../../uploads/<?= $image ?>" alt=""/>
                             <label for="image_upload">Upload Image</label>
                             <input accept="image/*" type="file" id="image_upload" name="image_upload"/>
                         </div>

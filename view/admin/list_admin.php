@@ -223,22 +223,22 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
                         break;
                     }
                     if( $start <= $key && $key < $end) {
-                        echo "
+                        echo sprintf("
                          <tr>
-                            <th class='posts_list'>" . $result['id'] . "</th>
-                            <th class='posts_list'><a href='detail.php?id=" . $result['id'] . "'>" . $result['full_name'] . "</a></th>
-                            <th class='posts_list'>" . $result['username'] . "</th>
-                            <th class='posts_list'>" . $result['status'] . "</th>
-                            <th class='posts_list'>" . $result['created_at'] . "</th>
-                            <th class='posts_list'>" . $result['updated_at'] . "</th>
+                            <th class='posts_list'>%s</th>
+                            <th class='posts_list'><a href='detail.php?id=%s'>%s</a></th>
+                            <th class='posts_list'>%s</th>
+                            <th class='posts_list'>%s</th>
+                            <th class='posts_list'>%s</th>
+                            <th class='posts_list'>%s</th>
                             <th class='posts_list'>
                             <span>
-                            <a href='detail.php?id=" . $result['id'] . "'>Edit</a> | 
+                            <a href='detail.php?id=%s'>Edit</a> | 
                             <a onclick='openPopup({$result['id']})'>Delete</a>
                             </span>
                             </th>
                         </tr>
-                        ";
+                        ", $result['id'], $result['id'], $result['full_name'], $result['username'], $result['status'], $result['created_at'], $result['updated_at'], $result['id']);
                     }
                 }
             }

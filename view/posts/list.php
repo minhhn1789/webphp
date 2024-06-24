@@ -50,6 +50,7 @@ if (isset($_SESSION['users']['user_id']) && isset($_SESSION['users']['login'])){
             }
             $total_page = count($results) ? floor(count($results) / $default_number_posts) : $total_page;
             $total_page = (count($results) % $default_number_posts) == 0 ? $total_page : $total_page + 1;
+            $error = $_SESSION['users']['error_message'] ?? '';
         }
     } catch (Exception $e) {
         $error = 'Can not get post information: '.  $e->getMessage();
