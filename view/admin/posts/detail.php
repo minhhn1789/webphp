@@ -7,17 +7,19 @@ session_start();
 use model\Database;
 use model\Blogs;
 
+if (isset($_GET['clear_mess'])){
+    unset($_SESSION['admin']['error_message']);
+    unset($_SESSION['admin']['message']);
+}
+
 $author_id = '';
 $status = '';
 $title = '';
 $content = '';
 $image = '';
-$error = '';
+$error = $_SESSION['admin']['error_message'] ?? '';
 $id = '';
-if (isset($_GET['clear_mess'])){
-    unset($_SESSION['admin']['error_message']);
-    unset($_SESSION['admin']['message']);
-}
+
 $message = $_SESSION['admin']['message'] ?? '';
 $_SESSION['admin']['searchable'] = false;
 

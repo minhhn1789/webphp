@@ -9,16 +9,18 @@ use model\Database;
 use model\Blogs;
 use model\Users;
 
-$author_name = '';
-$author_id = '';
-$error = '';
-$title = '';
-$content = '';
-$updated_at = '';
 if (isset($_GET['clear_mess'])){
     unset($_SESSION['admin']['error_message']);
     unset($_SESSION['admin']['message']);
 }
+
+$author_name = '';
+$author_id = '';
+$error = $_SESSION['admin']['error_message'] ?? '';
+$title = '';
+$content = '';
+$updated_at = '';
+
 $message = $_SESSION['message'] ?? '';
 $_SESSION['admin']['searchable'] = false;
 

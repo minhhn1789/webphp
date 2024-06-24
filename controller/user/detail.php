@@ -12,7 +12,7 @@ use model\Users;
 
 try{
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        if(isset($_POST['user_id'])) {
+        if(isset($_POST['user_id']) && isset($_SESSION['users']['login'])) {
             $pdo = new Database();
             $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

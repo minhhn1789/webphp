@@ -5,17 +5,18 @@ include_once "../../../model/blogs.php";
 session_start();
 use model\Blogs;
 
-$author_id = '';
-$status = '';
-$title = '';
-$content = '';
-$error = '';
-$_SESSION['admin']['searchable'] = false;
-
 if (isset($_GET['clear_mess'])){
     unset($_SESSION['admin']['error_message']);
     unset($_SESSION['admin']['message']);
 }
+
+$author_id = '';
+$status = '';
+$title = '';
+$content = '';
+$error = $_SESSION['admin']['error_message'] ?? '';
+$_SESSION['admin']['searchable'] = false;
+
 $message = $_SESSION['admin']['message'] ?? '';
 
 

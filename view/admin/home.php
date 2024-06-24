@@ -7,6 +7,14 @@ session_start();
 use model\Database;
 use model\Blogs;
 
+if (isset($_GET['clear_mess'])){
+    unset($_SESSION['admin']['error_message']);
+}
+
+if (!isset($_GET['filter'])){
+    unset($_SESSION['admin']['filter_value']['posts']);
+}
+
 $admin_id = '';
 $username = 'Admin';
 $results = [];
@@ -17,14 +25,6 @@ $page = $_GET['page'] ?? 1;
 $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
 $_SESSION['admin']['searchable'] = false;
-
-if (isset($_GET['clear_mess'])){
-    unset($_SESSION['admin']['error_message']);
-}
-
-if (!isset($_GET['filter'])){
-    unset($_SESSION['admin']['filter_value']['posts']);
-}
 
 if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin']) && isset($_SESSION['admin']['is_admin'])){
     try {

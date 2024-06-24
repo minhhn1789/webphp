@@ -9,6 +9,14 @@ use model\Database;
 use model\Blogs;
 use model\Users;
 
+if(!isset($_GET['search'])){
+    unset($_SESSION['admin']['search']);
+}
+
+if (isset($_GET['clear_mess'])){
+    unset($_SESSION['admin']['error_message']);
+}
+
 $author_name = '';
 $error = $_SESSION['admin']['error_message'] ?? '';
 $results = [];
@@ -19,14 +27,6 @@ $page = $_GET['page'] ?? 1;
 $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
 $_SESSION['admin']['searchable'] = true;
-if(!isset($_GET['search'])){
-    unset($_SESSION['admin']['search']);
-}
-
-if (isset($_GET['clear_mess'])){
-    unset($_SESSION['admin']['error_message']);
-}
-
 
 if (isset($_GET['author_id']) && isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin'])){
     try {

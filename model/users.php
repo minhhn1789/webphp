@@ -279,6 +279,8 @@ class Users
             try{
                 $stmt_account = $this->pdo->prepare("DELETE FROM accounts WHERE user_id = ?");
                 $stmt_account->execute([$this->id]);
+                $stmt_posts = $this->pdo->prepare("DELETE FROM posts WHERE author_id = ?");
+                $stmt_posts->execute([$this->id]);
                 $stmt_user = $this->pdo->prepare("DELETE FROM users WHERE id = ?");
                 $stmt_user->execute([$this->id]);
             } catch (PDOException $e) {

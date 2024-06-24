@@ -7,18 +7,19 @@ session_start();
 use model\Database;
 use model\Blogs;
 
+if (isset($_GET['clear_mess'])){
+    $_SESSION['users']['error_message'] = '';
+    $_SESSION['message'] = '';
+}
+
 $author_id = '';
 $username = 'User';
 $status = '';
 $title = '';
 $content = '';
-$error = '';
+$error = $_SESSION['users']['error_message'] ?? 'Please Login!';
 $_SESSION['users']['searchable'] = false;
 
-if (isset($_GET['clear_mess'])){
-    $_SESSION['users']['error_message'] = '';
-    $_SESSION['message'] = '';
-}
 $message = $_SESSION['users']['message'] ?? '';
 
 

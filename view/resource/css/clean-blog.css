@@ -647,3 +647,42 @@ input[type="search"]:focus {
   border-color: #1183d6;
   outline: none;
 }
+
+
+/*--------confirm delete popup--------*/
+.confirm_delete{
+  display: none;
+  width: 50%;
+  padding-bottom: 2em;
+  background: #178192ed;
+  position: fixed;
+  z-index: 9999 !important;
+  color: white;
+  left: 25%;
+}
+
+.confirm_delete #title {
+  display: flex;
+}
+.confirm_delete #title h1{
+  margin-left: auto;
+}
+
+.confirm_delete #title a{
+  margin-left: auto;
+  padding-right: 5px;
+  color: #ffffff;
+}
+
+.confirm_delete #content{
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.confirm_delete #content input[type='password']{
+  border: 1px solid white;
+  background: transparent;
+  border-radius: 5px;
+}

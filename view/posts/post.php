@@ -9,20 +9,21 @@ use model\Database;
 use model\Blogs;
 use model\Users;
 
+if (isset($_GET['clear_mess'])){
+    unset($_SESSION['users']['error_message']);
+    unset($_SESSION['users']['message']);
+}
+
 $author_name = '';
 $user_id = '';
 $author_id = '';
 $username = 'User';
-$error = 'Please Login!';
+$error = $_SESSION['users']['error_message'] ?? '';
 $_SESSION['users']['searchable'] = false;
 
 $title = '';
 $content = '';
 $updated_at = '';
-if (isset($_GET['clear_mess'])){
-    unset($_SESSION['users']['error_message']);
-    unset($_SESSION['users']['message']);
-}
 $message = $_SESSION['users']['message'] ?? '';
 
 

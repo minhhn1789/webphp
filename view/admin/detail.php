@@ -5,6 +5,11 @@ session_start();
 use model\Database;
 use model\Users;
 
+if (isset($_GET['clear_mess'])){
+    unset($_SESSION['admin']['error_message']);
+    unset($_SESSION['admin']['message']);
+}
+
 $id = '';
 $full_name = '';
 $gender = '';
@@ -15,11 +20,8 @@ $address = '';
 $username = '';
 $role = '';
 $status = '';
-$error = 'Please Login!';
-if (isset($_GET['clear_mess'])){
-    unset($_SESSION['admin']['error_message']);
-    unset($_SESSION['admin']['message']);
-}
+$error = $_SESSION['admin']['error_message'] ?? '';
+
 $message = $_SESSION['admin']['message'] ?? '';
 $_SESSION['admin']['searchable'] = false;
 
@@ -192,15 +194,15 @@ if (isset($_GET['id']) && isset($_SESSION['admin']['login_admin'])){
                         </select>
                     </div>
                 </div>
-                <div class="row control-group">
-                    <div class="form-group col-xs-12 floating-label-form-group-value controls">
-                        <label for="username">Username</label>
-                        <input value="<?= $username ?>" type="text" class="form-control" placeholder="Username" id="username" name="username" required>
-                    </div>
-                </div>
                 <?php
                 if($id == $_SESSION['admin']['admin_id']){
                     echo '
+                    <div class="row control-group">
+                        <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                            <label for="username">Username</label>
+                            <input value="'. $username .'" type="text" class="form-control" placeholder="Username" id="username" name="username" required>
+                        </div>
+                    </div>
                     <div class="row control-group">
                         <div class="form-group col-xs-12 floating-label-form-group-value controls">
                             <label for="current_password">Current Password</label>
@@ -222,6 +224,12 @@ if (isset($_GET['id']) && isset($_SESSION['admin']['login_admin'])){
                     ';
                 }else{
                     echo '
+                        <div class="row control-group">
+                            <div class="form-group col-xs-12 floating-label-form-group-value controls">
+                                <label for="username">Username</label>
+                                <input value="'. $username .'" type="text" class="form-control" placeholder="Username" id="username" name="username" disabled>
+                            </div>
+                        </div>
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group-value controls">
                                 <label for="your_password">Your Password</label>

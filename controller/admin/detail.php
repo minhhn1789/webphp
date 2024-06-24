@@ -68,9 +68,6 @@ try{
                         if(!$_POST['your_password']){
                             $_SESSION['admin']['error_message'] =  'Please enter password before save!';
                         }else if(password_verify($_POST['your_password'], $current_admin->getPassword())){
-                            if($user->getUsername() != $_POST['username']){
-                                $check->checkUserName();
-                            }
                             if($user->getEmail() != $_POST['email']){
                                 $check->checkEmail();
                             }
@@ -86,7 +83,6 @@ try{
                                 ->setPhoneNumber($_POST['phone_number'])
                                 ->setEmail($_POST['email'])
                                 ->setAddress($_POST['address'])
-                                ->setUsername($_POST['username'])
                                 ->setStatus($_POST['status'])
                                 ->setPassword(null);
                             $user->update();

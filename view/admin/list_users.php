@@ -7,9 +7,18 @@ session_start();
 use model\Database;
 use model\Users;
 
+if (isset($_GET['clear_mess'])){
+    unset($_SESSION['admin']['error_message']);
+    unset($_SESSION['admin']['users']['message']);
+}
+
+if (!isset($_GET['filter'])){
+    unset($_SESSION['admin']['filter_value']['users']);
+}
+
 $admin_id = '';
 $username = 'Admin';
-$error = '';
+$error = $_SESSION['admin']['error_message'] ?? '';
 $results = [];
 $_SESSION['admin']['searchable'] = false;
 
@@ -19,15 +28,6 @@ $total_page = 1;
 $page = $_GET['page'] ?? 1;
 $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
-
-if (isset($_GET['clear_mess'])){
-    unset($_SESSION['admin']['error_message']);
-    unset($_SESSION['admin']['users']['message']);
-}
-
-if (!isset($_GET['filter'])){
-    unset($_SESSION['admin']['filter_value']['users']);
-}
 
 if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_admin']) && isset($_SESSION['admin']['is_admin'])){
     try {
@@ -115,6 +115,22 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
             }
             ?>
         </div>
+    </div>
+</div>
+
+<div class="confirm_delete" id="confirm_delete">
+    <div id="title"><h1>Confirm delete</h1><a onclick="closePopup()">x</a></div>
+
+    <div id="content">
+        <form action="" method="post" id="form_confirm_delete">
+            <div id="message"><p>Please confirm deletion by entering your password to delete</p></div>
+            <div id="your_password">
+                <input id="id_delete" type="hidden" value="" name="id_delete">
+                <input type="hidden" value="users" name="type">
+                <label for="password">Your password:</label>
+                <input name="password" id="password" type="password">
+            </div>
+        </form>
     </div>
 </div>
 
@@ -208,16 +224,16 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
                     if( $start <= $key && $key < $end) {
                         echo "
                          <tr>
-                            <th class='posts_list'>" . $result['id'] . "</th>
-                            <th class='posts_list'><a href='detail.php?id=" . $result['id'] . "'>" . $result['full_name'] . "</a></th>
-                            <th class='posts_list'>" . $result['username'] . "</th>
-                            <th class='posts_list'>" . $result['status'] . "</th>
-                            <th class='posts_list'>" . $result['created_at'] . "</th>
-                            <th class='posts_list'>" . $result['updated_at'] . "</th>
+                            <th class='posts_list'>{$result['id']}</th>
+                            <th class='posts_list'><a href='detail.php?id={$result['id']}'>{$result['full_name']}</a></th>
+                            <th class='posts_list'>{$result['username']}</th>
+                            <th class='posts_list'>{$result['status']}</th>
+                            <th class='posts_list'>{$result['created_at']}</th>
+                            <th class='posts_list'>{$result['updated_at']}</th>
                             <th class='posts_list'>
                             <span>
-                            <a href='detail.php?id=" . $result['id'] . "'>Edit</a> | 
-                            <a href='../../controller/admin/delete.php?id=" . $result['id'] . "&type=users'>Delete</a>
+                            <a href='detail.php?id={$result['id']}'>Edit</a> | 
+                            <a onclick='openPopup({$result['id']})'>Delete</a>
                             </span>
                             </th>
                         </tr>
@@ -321,9 +337,21 @@ if (isset($_SESSION['admin']['admin_id']) && isset($_SESSION['admin']['login_adm
             }
         }
     }
+
+    function closePopup() {
+        const popup = document.getElementById('confirm_delete');
+        popup.style.display = "none";
+    }
+    function openPopup(id){
+        const popup = document.getElementById('confirm_delete');
+        const form = document.getElementById('form_confirm_delete');
+        const idDelete = document.getElementById('id_delete');
+        popup.style.display = "block";
+        form.action = '../../controller/admin/delete.php';
+        idDelete.value = id;
+    }
 </script>
 
 </body>
 
 </html>
-

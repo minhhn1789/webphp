@@ -5,6 +5,11 @@ session_start();
 use model\Database;
 use model\Users;
 
+if (isset($_GET['clear_mess'])){
+    unset($_SESSION['users']['error_message']);
+    unset($_SESSION['users']['message']);
+}
+
 $id = '';
 $full_name = '';
 $gender = '';
@@ -13,13 +18,9 @@ $phone_number = '';
 $email = '';
 $address = '';
 $username = '';
-$error = 'Please Login!';
+$error = $_SESSION['users']['error_message'] ?? 'Please Login!';
 $_SESSION['users']['searchable'] = false;
 
-if (isset($_GET['clear_mess'])){
-    unset($_SESSION['users']['error_message']);
-    unset($_SESSION['users']['message']);
-}
 $message = $_SESSION['users']['message'] ?? '';
 
 
@@ -38,7 +39,6 @@ if (isset($_GET['id']) && isset($_SESSION['users']['login'])){
             $email = $user->getEmail();
             $address = $user->getAddress();
             $username = $user->getUsername();
-            $error = $_SESSION['users']['error_message'] ?? '';
         }
     } catch (Exception $e) {
         $error = 'Can not get user information: '.  $e->getMessage();
@@ -198,7 +198,7 @@ if (isset($_GET['id']) && isset($_SESSION['users']['login'])){
                 <br>
                 <div class="row">
                     <div class="form-group col-xs-12">
-                        <button id="save_form_button" type="submit" class="btn btn-default" form="update_user" value="update" role="button">Save</button>
+                        <button id="save_form_button" type="submit" class="btn btn-default" form="update_user" value="update" role="button" <?= $id ? '' : 'disabled' ?> >Save</button>
                     </div>
                 </div>
             </form>

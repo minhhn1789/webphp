@@ -9,6 +9,14 @@ use model\Database;
 use model\Blogs;
 use model\Users;
 
+if (isset($_GET['clear_mess'])){
+    unset($_SESSION['users']['error_message']);
+}
+
+if(!isset($_GET['search'])){
+    unset($_SESSION['users']['search']);
+}
+
 $author_name = '';
 $user_id = '';
 $username = 'User';
@@ -22,14 +30,6 @@ $total_page = 1;
 $page = $_GET['page'] ?? 1;
 $start = ($page - 1) * $default_number_posts;
 $end = $page * $default_number_posts;
-
-if (isset($_GET['clear_mess'])){
-    unset($_SESSION['users']['error_message']);
-}
-
-if(!isset($_GET['search'])){
-    unset($_SESSION['users']['search']);
-}
 
 if (isset($_GET['author_id'])){
     try {
